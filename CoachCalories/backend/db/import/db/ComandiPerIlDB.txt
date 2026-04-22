@@ -1,0 +1,5 @@
+# 1. Ricopia il file (per sicurezza)
+docker cp tuo_file.json db-mongo-1:/tmp/movies.json
+
+# 2. Prova l'import SENZA --jsonArray
+docker exec -it db-mongo-1 mongoimport --db dbMovies --collection movies --file /tmp/movies.json

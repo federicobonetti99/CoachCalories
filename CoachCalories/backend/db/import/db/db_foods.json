@@ -1,0 +1,79 @@
+[
+  {
+    "nome": "Avocado",
+    "quantita": 100,
+    "unita": "g",
+    "calorie": 160,
+    "carboidrati_g": 9,
+    "proteine_g": 2,
+    "grassi_g": 15,
+    "img": "avocado.jpg",
+    "note": "Ottima fonte di grassi sani."
+  },
+  {
+    "nome": "Petto di Pollo",
+    "quantita": 100,
+    "unita": "g",
+    "calorie": 165,
+    "carboidrati_g": 0,
+    "proteine_g": 31,
+    "grassi_g": 3.6,
+    "img": "petto-pollo-piastra.jpg",
+    "note": "Cotto senza pelle."
+  },
+  {
+    "nome": "Cosce di Pollo",
+    "quantita": 100,
+    "unita": "g",
+    "calorie": 210,
+    "carboidrati_g": 0,
+    "proteine_g": 24,
+    "grassi_g": 12,
+    "img": "cosce-pollo-forno.jpg",
+    "note": "Valori con pelle inclusa."
+  },
+  {
+    "nome": "Mela Fuji",
+    "quantita": 1,
+    "unita": "pz",
+    "calorie": 72,
+    "carboidrati_g": 19,
+    "proteine_g": 0.4,
+    "grassi_g": 0.2,
+    "img": "mela-fuji.jpg",
+    "note": "Peso medio circa 180g."
+  },
+  {
+    "nome": "Riso Basmati",
+    "quantita": 100,
+    "unita": "g",
+    "calorie": 349,
+    "carboidrati_g": 78,
+    "proteine_g": 8.5,
+    "grassi_g": 0.9,
+    "img": "risoBasmati.jpg",
+    "note": "Riso a chicco lungo."
+  },
+  {
+    "nome": "Uovo",
+    "quantita": 1,
+    "unita": "pz",
+    "calorie": 78,
+    "carboidrati_g": 0.6,
+    "proteine_g": 6.3,
+    "grassi_g": 5.3,
+    "img": "uovo.jpg",
+    "note": "Circa 60g a pezzo."
+  },
+  {
+    "nome": "Yogurt Greco 0%",
+    "quantita": 150,
+    "unita": "g",
+    "calorie": 85,
+    "carboidrati_g": 6,
+    "proteine_g": 15,
+    "grassi_g": 0,
+    "img": "yogurt-greco-magro.jpg",
+    "note": "Vasetto standard."
+  }
+]
