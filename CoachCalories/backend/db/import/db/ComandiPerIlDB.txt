@@ -1,5 +1,10 @@
-# 1. Ricopia il file (per sicurezza)
-docker cp tuo_file.json db-mongo-1:/tmp/movies.json
 
-# 2. Prova l'import SENZA --jsonArray
-docker exec -it db-mongo-1 mongoimport --db dbMovies --collection movies --file /tmp/movies.json
+
+
+PER IL LOGIN
+docker cp db_login.json db-mongo-1:/tmp/db_login.json
+docker exec -it db-mongo-1 mongoimport --db CoachCalories --collection users --file /tmp/db_login.json --jsonArray
+
+PER I CIBI
+docker cp db_foods.json db-mongo-1:/tmp/db_foods.json
+docker exec -it db-mongo-1 mongoimport --db CoachCalories --collection foods --file /tmp/db_foods.json --jsonArray

@@ -11,7 +11,7 @@ const handleLoginSuccess = () => {
 </script>
 
 <template>
-  <LoginContainer v-if="!isLogged" @login-success="handleLoginSuccess" />
+  <LoginContainer v-if="!isLogged" @login-success="handleLoginSuccess" /> 
 
   <HomeContainer v-else />
 </template>

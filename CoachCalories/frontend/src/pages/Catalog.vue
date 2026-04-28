@@ -13,7 +13,6 @@ const listFoods = async () => {
     const data = response.data;
 
     data.forEach((food) => {
-      // Se l'immagine c'è, usiamo il percorso corretto, altrimenti fallback
       food.img = food.img ? `/img/foods/${food.img}` : NOT_FOUND_IMAGE;
     });
 
@@ -23,7 +22,6 @@ const listFoods = async () => {
   }
 };
 
-// Filtro intelligente: cerchiamo per nome tra i cibi già caricati
 const filteredFoods = computed(() => {
   if (!searchQuery.value) return foods.value;
   return foods.value.filter(food => 

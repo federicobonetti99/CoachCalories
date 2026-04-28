@@ -1,12 +1,32 @@
 <script setup>
 import { ref } from 'vue'
+import axios from 'axios' 
 import replaceByDefault from "@/lib/replaceByDefault"
+
+const emit = defineEmits(['login-success'])
 
 const email = ref('')
 const password = ref('')
+const errorMessage = ref('') 
 
 const handleLogin = () => {
-  console.log("Login richiesto per:", email.value)
+  errorMessage.value = ''
+  
+  axios.post('http://localhost:3000/api/auth/login', {
+    email: email.value, 
+    password: password.value
+  })
+  .then(response => {
+    if (response.data.success) {
+      localStorage.setItem('authGrade', response.data.authenticationGrade)
+      localStorage.setItem('userEmail', response.data.email)
+      
+      emit('login-success')
+    }
+  })
+  .catch(err => {
+    errorMessage.value = err.response?.data?.message || "Errore di connessione"
+  })
 }
 </script>
 
@@ -60,6 +80,10 @@ const handleLogin = () => {
               </div>
             </div>
 
+            <div v-if="errorMessage" class="alert alert-danger py-2 mb-3 text-center small fw-bold">
+        ⚠️    {{ errorMessage }}
+            </div>
+
             <button type="submit" class="btn btn-coach w-100 fw-bold py-2 mb-3">
               ACCEDI AL SISTEMA
             </button>
@@ -70,7 +94,6 @@ const handleLogin = () => {
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </template>
@@ -80,7 +103,6 @@ const handleLogin = () => {
   margin-bottom: 50px;
 }
 
-/* Container esterno con bordo verde richiesto */
 .outer-green-border {
   border: 4px solid #198754 !important; /* Bordo verde esterno */
 }
@@ -93,9 +115,8 @@ const handleLogin = () => {
   overflow: hidden;
 }
 
-/* Effetto Sfondo */
 .coverImage {
-  filter: blur(12px); /* Un po' più di blur per far risaltare il riso ma leggere il form */
+  filter: blur(12px);
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
   z-index: 1;
@@ -105,7 +126,6 @@ const handleLogin = () => {
   width: 100%; height: 100%; object-fit: cover; transform: scale(1.1);
 }
 
-/* Pattern puntini */
 .pattern {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
@@ -143,7 +163,6 @@ const handleLogin = () => {
   font-size: 1.2rem;
 }
 
-/* Stile placeholder */
 ::placeholder {
   color: rgba(255, 255, 255, 0.4) !important;
   opacity: 1;

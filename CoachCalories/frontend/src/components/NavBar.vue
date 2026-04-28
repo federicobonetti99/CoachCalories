@@ -1,31 +1,40 @@
 <script setup>
 import NavButton from "@/components/NavButton.vue";
-import { useCounterStore } from "../store/counter.js";
-
-const counterStore = useCounterStore();
+const props = defineProps(['userGrade']);
+const emit = defineEmits(['logout', 'navigate']);
 </script>
 
 <template>
-  <nav class="navbar navbar-light bg-light navbar-expand-lg">
-    <div class="container container-fluid">
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
+  <nav class="navbar navbar-light bg-light navbar-expand-lg shadow-sm">
+    <div class="container-fluid container">
+      
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
         <span class="navbar-toggler-icon"></span>
       </button>
+
       <div class="collapse navbar-collapse" id="navContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <NavButton route-name="Home" />
-          <NavButton route-name="Catalog" />
+          
+          <li class="nav-item">
+            <a class="nav-link" href="#" @click.prevent="$emit('navigate', 'Home')">Home</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="#" @click.prevent="$emit('navigate', 'Catalog')">Catalog</a>
+          </li>
+
         </ul>
-        <div>Total click: {{ counterStore.count }}</div>
       </div>
+
+      <div class="d-flex align-items-center ms-auto">
+        <span class="me-3 small fw-bold text-muted text-uppercase d-none d-sm-inline">
+          {{ userGrade || 'Ospite' }}
+        </span>
+        <button v-if="userGrade" @click="$emit('logout')" class="btn btn-outline-danger btn-sm">
+          Esci
+        </button>
+      </div>
+
     </div>
   </nav>
 </template>

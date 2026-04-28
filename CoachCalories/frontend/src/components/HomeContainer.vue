@@ -6,6 +6,8 @@ import replaceByDefault from "@/lib/replaceByDefault"
 import { NOT_FOUND_IMAGE } from "@/lib/replaceByDefault"
 
 const food = ref({})
+const userGrade = localStorage.getItem('authGrade');
+const isLogged = !!userGrade;
 
 const getTopFood = async () => {
   try {

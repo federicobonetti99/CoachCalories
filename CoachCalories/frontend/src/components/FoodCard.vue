@@ -1,7 +1,9 @@
 <script setup>
 import replaceByDefault from "@/lib/replaceByDefault"
-const props = defineProps(["food"])
+// Aggiungiamo isLogged alle props
+const props = defineProps(["food", "isLogged"]) 
 </script>
+
 
 <template>
   <div class="card mb-4 shadow-sm food-card">
@@ -44,7 +46,7 @@ const props = defineProps(["food"])
           
           <div class="mt-3 d-flex justify-content-between align-items-center">
             <small class="text-secondary">⚖️ {{ food.quantita }}{{ food.unita }}</small>
-            <button class="btn btn-sm btn-outline-success">Aggiungi +</button>
+            <button v-if="isLogged" class="btn btn-sm btn-outline-success">Aggiungi +</button>
           </div>
         </div>
       </div>

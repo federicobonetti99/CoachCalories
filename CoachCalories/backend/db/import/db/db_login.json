@@ -1,0 +1,14 @@
+[
+  {
+    "username": "Federico",
+    "password": "Federico",
+    "email": "federico@coach.it",
+    "authenticationGrade": "admin"
+  },
+  {
+    "username": "Gianni",
+    "password": "Gianni",
+    "email": "gianni@user.it",
+    "authenticationGrade": "normal"
+  }
+]
