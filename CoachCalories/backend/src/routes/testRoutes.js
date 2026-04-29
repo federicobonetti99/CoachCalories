@@ -4,33 +4,38 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Configurazione Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        // 'frontend/img/foods' parte dalla cartella principale dove hai index.js
-        const dir = '../frontend/img/foods';
+        // Percorso per arrivare alla cartella foods nel frontend
+        const dir = path.join(__dirname, '../../../frontend/img/foods');
         
-        // Verifica se la cartella esiste, altrimenti la crea
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
-        
         cb(null, dir);
     },
     filename: (req, file, cb) => {
-        // Salviamo il file con un timestamp per evitare duplicati
-        cb(null, Date.now() + path.extname(file.originalname));
+        // Prendiamo il nome dall'input (es. "Pasta")
+        let nomeInput = req.body.nome || 'alimento';
+        
+        // Pulizia: minuscolo e trattini al posto degli spazi
+        const nomePulito = nomeInput.trim().toLowerCase().replace(/\s+/g, '-');
+        
+        // Recuperiamo l'estensione originale del file caricato
+        const estensione = path.extname(file.originalname);
+
+        // NOME FINALE: solo nome pulito + estensione (es. pasta.jpg)
+        cb(null, nomePulito + estensione);
     }
 });
 
 const upload = multer({ storage: storage });
 
-// Rotta per il caricamento
 router.post('/upload', upload.single('image'), (req, res) => {
-    if (!req.file) {
-        return res.status(400).send("Errore: nessun file caricato.");
-    }
-    console.log("✅ File salvato in frontend/img/foods:", req.file.filename);
+    if (!req.file) return res.status(400).send("Errore: nessun file.");
+    
+    console.log("✅ File salvato come:", req.file.filename);
+    
     res.json({ 
         message: "Caricato con successo!", 
         filename: req.file.filename 
