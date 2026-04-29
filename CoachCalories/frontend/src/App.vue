@@ -4,6 +4,7 @@ import Navbar from './components/Navbar.vue'
 import LoginContainer from './components/LoginContainer.vue'
 import HomeContainer from './components/HomeContainer.vue'
 import Catalog from './pages/Catalog.vue' 
+import AddFoodPage from './pages/AddFoodPage.vue'
 
 const isLogged = ref(false)
 const userGrade = ref('')
@@ -42,14 +43,24 @@ const setPage = (pageName) => {
     <Navbar :userGrade="userGrade" @logout="handleLogout" @navigate="setPage" />
 
     <main class="container mt-4">
-      <LoginContainer v-if="!isLogged && currentPage === 'Home'" @login-success="handleLoginSuccess" />
-
-      <HomeContainer v-if="isLogged && currentPage === 'Home'" :userGrade="userGrade" />
+      
+      <LoginContainer 
+        v-if="currentPage === 'Home' && !isLogged" 
+        @login-success="handleLoginSuccess" 
+      />
+      
+      <HomeContainer 
+        v-if="currentPage === 'Home' && isLogged" 
+        :userGrade="userGrade" 
+      />
 
       <div v-if="currentPage === 'Catalog'" class="catalog-section">
         <h2 class="text-white mb-4">Gestione Catalogo Alimentare</h2>
         <Catalog /> 
       </div>
+
+      <AddFoodPage v-if="currentPage === 'AddFoodPage'" />
+
     </main>
   </div>
 </template>

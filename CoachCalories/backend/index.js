@@ -4,7 +4,8 @@ const cors = require('cors');
 
 // 1. Importiamo i router
 const foodRouter = require('./src/routes/foodsRoutes'); 
-const authRouter = require('./src/routes/authRoutes'); // Aggiunto per il login
+const authRouter = require('./src/routes/authRoutes');
+const testRouter = require('./src/routes/testRoutes');
 
 // 2. Connessione al database UNIFICATO
 // Abbiamo cambiato 'dbFoods' in 'CoachCalories' per trovare sia utenti che cibi
@@ -21,7 +22,8 @@ app.use(express.static('public'));
 
 // 3. Definizione delle rotte (Entry-points delle API)
 app.use('/foods', foodRouter);
-app.use('/api/auth', authRouter); // Rotta per Federico e Gianni
+app.use('/api/auth', authRouter);
+app.use('/test', testRouter); 
 
 // Avvio del server
 app.listen(3000, () => {

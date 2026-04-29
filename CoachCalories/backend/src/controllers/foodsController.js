@@ -100,3 +100,45 @@ exports.findFoodByQuery = (req, res) => {
             res.status(500).send(err);
         });
 }
+
+exports.createFood = async (req, res) => {
+    try {
+        console.log("--- RICHIESTA RICEVUTA ---");
+        console.log("Dati testo (body):", req.body);
+        console.log("Dati file (file):", req.file);
+
+        // Estraiamo i dati dal body (che arrivano come stringhe dal FormData)
+        const { nome, calorie, proteine, grassi, carboidrati, quantita, unitaMisura } = req.body;
+
+        // Creiamo l'oggetto da salvare nel DB
+        const newFood = new Food({
+            nome: nome,
+            calorie: Number(calorie),
+            proteine: Number(proteine),
+            grassi: Number(grassi),
+            carboidrati: Number(carboidrati),
+            quantita: Number(quantita),
+            unitaMisura: unitaMisura,
+            // Se c'è un file salvato da Multer, prendiamo il suo nome, altrimenti default
+            img: req.file ? req.file.filename : 'default.jpg'
+        });
+
+        const savedFood = await newFood.save();
+        
+        console.log("✅ Alimento salvato con successo!");
+        
+        res.status(201).json({
+            success: true,
+            message: "Alimento creato!",
+            data: savedFood
+        });
+
+    } catch (err) {
+        console.error("❌ ERRORE NEL SALVATAGGIO:", err.message);
+        res.status(500).json({
+            success: false,
+            message: "Errore nel server durante il salvataggio",
+            error: err.message
+        });
+    }
+};

@@ -23,6 +23,10 @@ const emit = defineEmits(['logout', 'navigate']);
             <a class="nav-link" href="#" @click.prevent="$emit('navigate', 'Catalog')">Catalog</a>
           </li>
 
+          <li class="nav-item">
+            <a class="nav-link" href="#" @click.prevent="$emit('navigate', 'AddFoodPage')">Aggiungi Alimento</a>
+          </li>
+
         </ul>
       </div>
 
