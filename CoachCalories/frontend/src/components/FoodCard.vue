@@ -1,9 +1,32 @@
 <script setup>
-import replaceByDefault from "@/lib/replaceByDefault"
-// Aggiungiamo isLogged alle props
-const props = defineProps(["food", "isLogged"]) 
-</script>
+import { computed } from 'vue';
+import replaceByDefault from "@/lib/replaceByDefault";
+import axios from "axios";
 
+const props = defineProps(["food", "isLogged"]);
+const emit = defineEmits(["food-deleted"]);
+
+// Controlliamo se l'utente è un admin verificando il localStorage
+const isAdmin = computed(() => {
+  // Sostituisci "admin" con l'effettivo valore restituito dal tuo server se diverso
+  return localStorage.getItem("authGrade") === 'admin'; 
+});
+
+const cancellaCibo = async () => {
+  if (!confirm(`Sei sicuro di voler eliminare ${props.food.nome}?`)) {
+    return;
+  }
+
+  try {
+    await axios.delete(`http://localhost:3000/foods/${props.food._id}`);
+    alert("Alimento eliminato con successo!");
+    emit("food-deleted", props.food._id);
+  } catch (error) {
+    console.error("Errore durante l'eliminazione:", error);
+    alert("Errore durante l'eliminazione dell'alimento.");
+  }
+};
+</script>
 
 <template>
   <div class="card mb-4 shadow-sm food-card">
@@ -44,9 +67,21 @@ const props = defineProps(["food", "isLogged"])
             </div>
           </div>
           
-          <div class="mt-3 d-flex justify-content-between align-items-center">
-            <small class="text-secondary">⚖️ {{ food.quantita }}{{ food.unita }}</small>
-            <button v-if="isLogged" class="btn btn-sm btn-outline-success">Aggiungi +</button>
+          <div class="mt-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-secondary">⚖️ {{ food.quantita }}{{ food.unita }}</small>
+            </div>
+
+            <div v-if="isLogged" class="mt-3 d-flex justify-content-end gap-2 flex-wrap">
+              
+              <template v-if="isAdmin">
+                <button class="btn btn-sm btn-outline-warning">Modifica</button>
+                <button @click="cancellaCibo" class="btn btn-sm btn-outline-danger">Cancella</button>
+              </template>
+              
+              <button class="btn btn-sm btn-outline-success">Aggiungi +</button>
+
+            </div>
           </div>
         </div>
       </div>
@@ -65,7 +100,6 @@ const props = defineProps(["food", "isLogged"])
 
 .food-card:hover {
   transform: translateY(-5px);
-  /*shadow: 0 10px 20px rgba(0,0,0,0.1);*/
 }
 
 .food-img {
