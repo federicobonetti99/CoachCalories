@@ -5,37 +5,45 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// --- 1. CREAZIONE AUTOMATICA CARTELLA ---
-// Se la cartella 'uploads' non esiste nel backend, la crea lui
-const uploadDir = './uploads';
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-}
-
-// --- 2. CONFIGURAZIONE STORAGE ---
+// --- 1. CONFIGURAZIONE STORAGE ---
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        console.log("--- MULTER: Sto salvando il file... ---");
-        cb(null, uploadDir); 
+        // Percorso per arrivare alla cartella nel frontend
+        const dir = path.join(__dirname, '../../../frontend/img/foods');
+        
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        cb(null, dir);
     },
     filename: (req, file, cb) => {
-        const uniqueName = Date.now() + path.extname(file.originalname);
-        console.log("--- MULTER: Nome file generato:", uniqueName);
-        cb(null, uniqueName);
+        // Prendiamo il nome dall'input (es. "Pasta")
+        let nomeInput = req.body.nome || 'alimento';
+        
+        // Pulizia: minuscolo e trattini al posto degli spazi
+        const nomePulito = nomeInput.trim().toLowerCase().replace(/\s+/g, '-');
+        
+        // Recuperiamo l'estensione originale del file caricato
+        const estensione = path.extname(file.originalname);
+
+        // NOME FINALE: solo nome pulito + estensione (es. pasta.jpg)
+        cb(null, nomePulito + estensione);
     }
 });
 
 const upload = multer({ storage: storage });
 
-// --- 3. ROTTE ---
+// --- 2. ROTTE ---
 
-// NOTA: Assicurati che in Vue l'URL sia http://localhost:3000/foods
+// Rotta per il catalogo (GET)
 router.route('/')
-    .get(controller.listFoods)
-    .post(upload.single('image'), (req, res, next) => {
-        console.log("--- ROUTER: Richiesta POST intercettata ---");
-        next();
-    }, controller.createFood);
+    .get(controller.listFoods);
+
+// Rotta per il salvataggio (POST /add)
+router.post('/add', upload.single('image'), (req, res, next) => {
+    console.log("--- ROUTER: Richiesta POST intercettata ---");
+    next();
+}, controller.createFood);
 
 router.route('/top-calorie').get(controller.findTopCalorieFood);
 router.route('/search').get(controller.findFoodByQuery);

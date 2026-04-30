@@ -118,12 +118,25 @@ const inviaTest = async () => {
   errore.value = '';
   
   const fd = new FormData();
-  // ORDINE FONDAMENTALE: Nome prima di Image
+  
+  // 1. Dati testuali
   fd.append('nome', dummyData.nome); 
+  
+  // 2. Aggiungi tutti i campi numerici (così non arrivano più come NaN al server)
+  fd.append('calorie', dummyData.calorie || 0);
+  fd.append('proteine', dummyData.proteine || 0);
+  fd.append('grassi', dummyData.grassi || 0);
+  fd.append('carboidrati', dummyData.carboidrati || 0);
+  fd.append('quantita', dummyData.quantita || 100);
+  
+  // 3. Unità di misura: il database richiede 'unita', quindi impostiamo 'unita'
+  fd.append('unita', dummyData.unitaMisura || 'g');
+  
+  // 4. Immagine
   fd.append('image', fileSelezionato.value); 
 
   try {
-    const res = await axios.post('http://localhost:3000/test/upload', fd, {
+    const res = await axios.post('http://localhost:3000/foods/add', fd, {
         headers: { 'Content-Type': 'multipart/form-data' }
     });
     
@@ -132,7 +145,8 @@ const inviaTest = async () => {
     
   } catch (err) {
     errore.value = "Errore nel caricamento.";
-    console.error("Dettaglio:", err.response?.data || err.message);
+    const errorDetail = err.response?.data?.dettaglio || err.response?.data?.message || err.message;
+    console.error("Dettaglio Errore:", errorDetail);
   }
 };
 </script>

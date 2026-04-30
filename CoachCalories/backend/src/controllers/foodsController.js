@@ -107,19 +107,17 @@ exports.createFood = async (req, res) => {
         console.log("Dati testo (body):", req.body);
         console.log("Dati file (file):", req.file);
 
-        // Estraiamo i dati dal body (che arrivano come stringhe dal FormData)
-        const { nome, calorie, proteine, grassi, carboidrati, quantita, unitaMisura } = req.body;
+        // Estrai i dati dal body. Aggiungiamo 'unita' in aggiunta o sostituzione di unitaMisura
+        const { nome, calorie, proteine, grassi, carboidrati, quantita, unita, unitaMisura } = req.body;
 
-        // Creiamo l'oggetto da salvare nel DB
-        const newFood = new Food({
+        const newFood = new foodModel({
             nome: nome,
-            calorie: Number(calorie),
-            proteine: Number(proteine),
-            grassi: Number(grassi),
-            carboidrati: Number(carboidrati),
-            quantita: Number(quantita),
-            unitaMisura: unitaMisura,
-            // Se c'è un file salvato da Multer, prendiamo il suo nome, altrimenti default
+            calorie: Number(calorie) || 0,
+            proteine: Number(proteine) || 0,
+            grassi: Number(grassi) || 0,
+            carboidrati: Number(carboidrati) || 0,
+            quantita: Number(quantita) || 100,
+            unita: unita || unitaMisura || 'g', 
             img: req.file ? req.file.filename : 'default.jpg'
         });
 
