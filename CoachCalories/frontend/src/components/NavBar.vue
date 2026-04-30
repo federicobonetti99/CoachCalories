@@ -1,5 +1,6 @@
 <script setup>
 import NavButton from "@/components/NavButton.vue";
+
 const props = defineProps(['userGrade']);
 const emit = defineEmits(['logout', 'navigate']);
 </script>
@@ -23,7 +24,7 @@ const emit = defineEmits(['logout', 'navigate']);
             <a class="nav-link" href="#" @click.prevent="$emit('navigate', 'Catalog')">Catalog</a>
           </li>
 
-          <li class="nav-item">
+          <li v-if="userGrade === 'admin'" class="nav-item">
             <a class="nav-link" href="#" @click.prevent="$emit('navigate', 'AddFoodPage')">Aggiungi Alimento</a>
           </li>
 
@@ -42,3 +43,7 @@ const emit = defineEmits(['logout', 'navigate']);
     </div>
   </nav>
 </template>
+
+<style scoped>
+/* Aggiungi qui eventuali stili specifici */
+</style>
