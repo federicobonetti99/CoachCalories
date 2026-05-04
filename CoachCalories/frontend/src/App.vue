@@ -5,10 +5,12 @@ import LoginContainer from './components/LoginContainer.vue'
 import HomeContainer from './components/HomeContainer.vue'
 import Catalog from './pages/Catalog.vue' 
 import AddFoodPage from './pages/AddFoodPage.vue'
+import EditFoodPage from './pages/EditFoodPage.vue' // Aggiunto import
 
 const isLogged = ref(false)
 const userGrade = ref('')
 const currentPage = ref('Home')
+const selectedFoodId = ref(null) // Variabile per l'ID
 
 onMounted(() => {
   const savedEmail = localStorage.getItem('userEmail')
@@ -32,9 +34,12 @@ const handleLogout = () => {
   currentPage.value = 'Home'
 }
 
-// Funzione che riceve il nome della pagina dalla Navbar
-const setPage = (pageName) => {
+// Funzione aggiornata per accettare anche l'ID
+const setPage = (pageName, id = null) => {
   currentPage.value = pageName
+  if (id) {
+    selectedFoodId.value = id
+  }
 }
 </script>
 
@@ -56,11 +61,21 @@ const setPage = (pageName) => {
 
       <div v-if="currentPage === 'Catalog'" class="catalog-section">
         <h2 class="text-white mb-4">Gestione Catalogo Alimentare</h2>
-        <Catalog /> 
+        <Catalog @navigate="setPage" /> 
       </div>
 
       <AddFoodPage v-if="currentPage === 'AddFoodPage'" />
 
+      <EditFoodPage 
+        v-if="currentPage === 'EditFoodPage'" 
+        :food-id="selectedFoodId" 
+        @navigate="setPage"
+      />
+
     </main>
   </div>
 </template>
+
+<style scoped>
+/* Aggiungi qui eventuali stili specifici */
+</style>

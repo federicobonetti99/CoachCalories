@@ -67,7 +67,7 @@ onMounted(() => {
           :food="food" 
           :isLogged="isLogged" 
           @food-deleted="listFoods" 
-        />
+          @navigate="(page, id) => $emit('navigate', page, id)" />
       </div>
     </div>
     
