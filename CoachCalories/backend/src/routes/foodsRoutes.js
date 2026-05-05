@@ -49,7 +49,7 @@ router.route('/top-calorie').get(controller.findTopCalorieFood);
 router.route('/search').get(controller.findFoodByQuery);
 router.route('/:id')
     .get(controller.readFood)
-    .put(controller.updateFood)
+    .put(upload.single('image'), controller.updateFood) //  Adesso è corretto!
     .delete(controller.deleteFood);
-
+    
 module.exports = router;

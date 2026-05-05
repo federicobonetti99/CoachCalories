@@ -1,6 +1,5 @@
 const { foodModel } = require('../models/foodModel'); // Assicurati che il percorso sia corretto
 
-// 1. Lista tutti gli alimenti
 exports.listFoods = (req, res) => {
     foodModel.find()
         .then(doc => {
@@ -11,7 +10,6 @@ exports.listFoods = (req, res) => {
         });
 }
 
-// 2. Leggi un singolo alimento per ID
 exports.readFood = (req, res) => {
     foodModel.findById(req.params.id)
         .then(doc => {
@@ -25,79 +23,37 @@ exports.readFood = (req, res) => {
         });
 }
 
-// 3. Crea un nuovo alimento
-exports.createFood = (req, res) => {
-    const food = new foodModel(req.body);
-    food.save()
-        .then(doc => {
-            res.json(doc);
-        })
-        .catch(err => {
-            res.status(500).send(err);
-        });
-}
-
-const multer = require('multer');
-const upload = multer({ dest: './uploads' }); // Gestisce l'upload dell'immagine in locale
-
 exports.updateFood = async (req, res) => {
-    // Intercettiamo il file e i dati direttamente qui, senza toccare il file delle rotte
-    upload.single('image')(req, res, async (err) => {
-        if (err) {
-            return res.status(500).json({ success: false, message: "Errore durante il caricamento del file", error: err.message });
+    try {
+        const foodId = req.params.id;
+
+        console.log("--- RICHIESTA DI SOSTITUZIONE ---");
+
+        // 1. Verifichiamo che il vecchio alimento esista
+        const oldFood = await foodModel.findById(foodId);
+        if (!oldFood) {
+            return res.status(404).send('Alimento non trovato');
         }
 
-        try {
-            const foodId = req.params.id;
-
-            console.log("--- RICHIESTA DI SOSTITUZIONE ALIMENTO ---");
-            console.log("Dati testo (body):", req.body);
-            console.log("Dati file (file):", req.file);
-
-            // 1. Verifichiamo che il vecchio alimento esista
-            const oldFood = await foodModel.findById(foodId);
-            if (!oldFood) {
-                return res.status(404).send('Alimento non trovato');
-            }
-
-            // 2. Estraiamo i dati dal body della richiesta
-            const { nome, calorie, proteine, grassi, carboidrati, quantita, unita, unitaMisura, note, img } = req.body;
-
-            // 3. Creiamo il nuovo alimento
-            const newFood = new foodModel({
-                nome: nome,
-                calorie: Number(calorie) || 0,
-                proteine_g: Number(proteine) || 0,
-                grassi_g: Number(grassi) || 0,
-                carboidrati_g: Number(carboidrati) || 0,
-                quantita: Number(quantita) || 100,
-                unita: unita || unitaMisura || 'g',
-                note: note || "",
-                img: req.file ? req.file.filename : (img || oldFood.img || 'default.jpg')
-            });
-
-            // 4. Salviamo il nuovo alimento
-            const savedFood = await newFood.save();
-
-            // 5. Se il salvataggio ha successo, eliminiamo il vecchio documento
-            await foodModel.findByIdAndDelete(foodId);
-
-            console.log("✅ Alimento sostituito con successo!");
-            res.status(200).json({
-                success: true,
-                message: "Alimento sostituito con successo!",
-                data: savedFood
-            });
-
-        } catch (err) {
-            console.error("❌ ERRORE NELLA SOSTITUZIONE:", err.message);
-            res.status(500).json({
-                success: false,
-                message: "Errore nel server durante l'aggiornamento",
-                error: err.message
-            });
+        // 2. Se l'utente non carica una nuova immagine, conserviamo il nome della vecchia
+        if (!req.file && oldFood.img) {
+            req.file = { filename: oldFood.img };
         }
-    });
+
+        // 3. Eliminiamo il vecchio alimento dal database
+        await foodModel.findByIdAndDelete(foodId);
+
+        // 4. Richiamiamo createFood per salvare il nuovo elemento
+        return exports.createFood(req, res);
+
+    } catch (err) {
+        console.error("❌ ERRORE NELL'AGGIORNAMENTO:", err.message);
+        res.status(500).json({
+            success: false,
+            message: "Errore nel server durante l'aggiornamento",
+            error: err.message
+        });
+    }
 };
 
 // 5. Elimina un alimento
@@ -128,7 +84,6 @@ exports.findTopCalorieFood = (req, res) => {
 }
 
 // 7. Ricerca avanzata (trasformata da "Attore/Anno" a "Nome/Calorie")
-// Esempio: cerca cibi che contengono una parola nel nome e hanno un range di calorie
 exports.findFoodByQuery = (req, res) => {
     const { nome, minCal, maxCal } = req.query;
 
@@ -156,15 +111,16 @@ exports.createFood = async (req, res) => {
         console.log("Dati testo (body):", req.body);
         console.log("Dati file (file):", req.file);
 
-        // Estrai i dati dal body. Aggiungiamo 'unita' in aggiunta o sostituzione di unitaMisura
+        // Estrai i dati dal body
         const { nome, calorie, proteine, grassi, carboidrati, quantita, unita, unitaMisura } = req.body;
 
         const newFood = new foodModel({
             nome: nome,
             calorie: Number(calorie) || 0,
-            proteine: Number(proteine) || 0,
-            grassi: Number(grassi) || 0,
-            carboidrati: Number(carboidrati) || 0,
+            // Mappiamo i campi del form alle proprietà attese dal database
+            proteine_g: Number(proteine) || 0,
+            grassi_g: Number(grassi) || 0,
+            carboidrati_g: Number(carboidrati) || 0,
             quantita: Number(quantita) || 100,
             unita: unita || unitaMisura || 'g', 
             img: req.file ? req.file.filename : 'default.jpg'
