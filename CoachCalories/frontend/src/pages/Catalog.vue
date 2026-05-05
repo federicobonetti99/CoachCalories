@@ -6,8 +6,11 @@ import { onMounted, ref, computed } from "vue";
 
 const foods = ref([]);
 const searchQuery = ref("");
-// 1. Aggiungiamo lo stato di login
+// Stato di login
 const isLogged = ref(false);
+
+// Aggiungiamo la variabile per il grado dell'utente
+const userGrade = ref("");
 
 const listFoods = async () => {
   try {
@@ -33,9 +36,11 @@ const filteredFoods = computed(() => {
 
 onMounted(() => {
   listFoods();
-  // Controlliamo la chiave corretta che creiamo al momento del login
+  
+  // Controlliamo lo stato di login e il ruolo salvato in localStorage
   if (localStorage.getItem("authGrade")) {
     isLogged.value = true;
+    userGrade.value = localStorage.getItem("authGrade"); // 👈 Recuperiamo il ruolo dell'utente
   }
 });
 </script>
@@ -68,6 +73,43 @@ onMounted(() => {
           :isLogged="isLogged" 
           @food-deleted="listFoods" 
           @navigate="(page, id) => $emit('navigate', page, id)" />
+      </div>
+
+      <div 
+        v-if="userGrade === 'admin'" 
+        class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4" 
+        @click="$emit('navigate', 'AddFoodPage')"
+      >
+        <div 
+          class="card h-100 shadow-sm food-card" 
+          style="cursor: pointer; border-left: 6px solid #198754;"
+        >
+          <div class="row g-0 align-items-center h-100">
+            <div class="col-md-5 col-lg-4 bg-success bg-opacity-10 d-flex justify-content-center align-items-center" style="min-height: 200px;">
+              <i class="bi bi-plus-circle text-success" style="font-size: 3.5rem;"></i>
+            </div>
+            
+            <div class="col-md-7 col-lg-8">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h5 class="card-title fw-bold m-0 text-success text-capitalize">Nuovo Alimento</h5>
+                  <span class="badge rounded-pill bg-success">Admin</span>
+                </div>
+
+                <p class="card-text small text-muted mb-3">Clicca per inserire un nuovo elemento nel database.</p>
+
+                <div class="macro-container bg-light rounded p-2 text-center border">
+                  <small class="text-secondary fw-bold">Pannello di Controllo</small>
+                </div>
+                
+                <div class="mt-3">
+                  <div class="d-flex justify-content-end">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     

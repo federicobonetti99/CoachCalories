@@ -71,7 +71,6 @@ exports.deleteFood = (req, res) => {
 }
 
 // 6. Trova l'alimento "Super" (ho rimosso l'ID fisso del prof che non funzionerebbe)
-// Questa funzione ora trova l'alimento più calorico (giusto per testare il sort)
 exports.findTopCalorieFood = (req, res) => {
     foodModel.findOne()
         .sort({ calorie: -1 }) // -1 per ordine decrescente (il più calorico)
