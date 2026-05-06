@@ -3,33 +3,38 @@ import { ref } from 'vue'
 import axios from 'axios' 
 import replaceByDefault from "@/lib/replaceByDefault"
 
+// Definiamo gli emit corretti
 const emit = defineEmits(['login-success'])
 
 const email = ref('')
 const password = ref('')
 const errorMessage = ref('') 
 
-const handleLogin = () => {
-  errorMessage.value = ''
-  
-  axios.post('http://localhost:3000/api/auth/login', {
-    email: email.value, 
-    password: password.value
-  })
-  .then(response => {
-    if (response.data.success) {
-      localStorage.setItem('authGrade', response.data.authenticationGrade)
-      localStorage.setItem('userEmail', response.data.email)
-      
-      emit('login-success')
-    }
-  })
-  .catch(err => {
-    errorMessage.value = err.response?.data?.message || "Errore di connessione"
-  })
-}
-</script>
+const handleLogin = async () => {
+  try {
+    const response = await axios.post('http://localhost:3000/api/auth/login', {
+      email: email.value,
+      password: password.value
+    });
 
+    if (response.data.success) {
+      // Salviamo i dati nel LocalStorage del browser
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('authGrade', response.data.authenticationGrade);
+      
+      // Salviamo anche l'username
+      localStorage.setItem('username', response.data.username);
+
+      // Comunichiamo ad App.vue che il login è riuscito
+      emit('login-success');
+    }
+  } catch (error) {
+    console.error('Errore durante il login:', error);
+    errorMessage.value = 'Credenziali errate o errore del server';
+    alert('Credenziali errate o errore del server');
+  }
+};
+</script>
 <template>
   <div class="homeContainer">
     <div class="last shadow-lg outer-green-border">

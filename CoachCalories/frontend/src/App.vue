@@ -5,7 +5,8 @@ import LoginContainer from './components/LoginContainer.vue'
 import HomeContainer from './components/HomeContainer.vue'
 import Catalog from './pages/Catalog.vue' 
 import AddFoodPage from './pages/AddFoodPage.vue'
-import EditFoodPage from './pages/EditFoodPage.vue' // Aggiunto import
+import EditFoodPage from './pages/EditFoodPage.vue'
+import DailyDiaryPage from './pages/DailyDiaryPage.vue'
 
 const isLogged = ref(false)
 const userGrade = ref('')
@@ -58,6 +59,8 @@ const setPage = (pageName, id = null) => {
         v-if="currentPage === 'Home' && isLogged" 
         :userGrade="userGrade" 
       />
+
+      <DailyDiaryPage v-if="currentPage === 'DailyDiaryPage'" />
 
       <div v-if="currentPage === 'Catalog'" class="catalog-section">
         <h2 class="text-white mb-4">Gestione Catalogo Alimentare</h2>

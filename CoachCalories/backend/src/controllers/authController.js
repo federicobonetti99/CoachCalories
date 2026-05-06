@@ -1,4 +1,5 @@
 const { userModel } = require('../models/userModel');
+const jwt = require('jsonwebtoken');
 
 exports.login = (req, res) => {
     const { email, password } = req.body; 
@@ -10,10 +11,19 @@ exports.login = (req, res) => {
             }
 
             if (user.password === password) {
+                // Generazione del token con la chiave 'IL_TUO_SEGRETO'
+                const token = jwt.sign(
+                    { id: user._id, email: user.email, grade: user.authenticationGrade },
+                    'IL_TUO_SEGRETO', 
+                    { expiresIn: '1d' }
+                );
+
                 res.json({
                     success: true,
-                    username: user.username, // Restituiamo 'Federico'
-                    authenticationGrade: user.authenticationGrade
+                    username: user.username,
+                    email: user.email,
+                    authenticationGrade: user.authenticationGrade,
+                    token: token
                 });
             } else {
                 res.status(401).json({ success: false, message: 'Password errata' });

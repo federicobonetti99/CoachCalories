@@ -20,6 +20,10 @@ const emit = defineEmits(['logout', 'navigate']);
             <a class="nav-link" href="#" @click.prevent="$emit('navigate', 'Home')">Home</a>
           </li>
 
+          <li v-if="userGrade" class="nav-item">
+            <a class="nav-link" href="#" @click.prevent="$emit('navigate', 'DailyDiaryPage')">Diario Giornaliero</a>
+          </li>
+
           <li class="nav-item">
             <a class="nav-link" href="#" @click.prevent="$emit('navigate', 'Catalog')">Catalog</a>
           </li>
