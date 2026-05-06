@@ -24,6 +24,10 @@ const emit = defineEmits(['logout', 'navigate']);
             <a class="nav-link" href="#" @click.prevent="$emit('navigate', 'DailyDiaryPage')">Diario Giornaliero</a>
           </li>
 
+          <li v-if="userGrade" class="nav-item">
+            <a class="nav-link text-info fw-bold" href="#" @click.prevent="$emit('navigate', 'DiarySchema')">📊 Analisi</a>
+          </li>
+
           <li class="nav-item">
             <a class="nav-link" href="#" @click.prevent="$emit('navigate', 'Catalog')">Catalog</a>
           </li>
@@ -50,4 +54,10 @@ const emit = defineEmits(['logout', 'navigate']);
 
 <style scoped>
 /* Aggiungi qui eventuali stili specifici */
+.nav-link {
+  transition: color 0.2s ease-in-out;
+}
+.nav-link:hover {
+  color: #198754 !important;
+}
 </style>

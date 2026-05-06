@@ -8,3 +8,4 @@ docker exec -it db-mongo-1 mongoimport --db CoachCalories --collection foods --f
 
 DA INSTALLARE
 npm install multer
+npm install chart.js

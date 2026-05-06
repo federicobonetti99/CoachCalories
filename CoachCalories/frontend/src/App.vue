@@ -7,6 +7,7 @@ import Catalog from './pages/Catalog.vue'
 import AddFoodPage from './pages/AddFoodPage.vue'
 import EditFoodPage from './pages/EditFoodPage.vue'
 import DailyDiaryPage from './pages/DailyDiaryPage.vue'
+import DiarySchema from './pages/DiarySchemaPage.vue'
 
 const isLogged = ref(false)
 const userGrade = ref('')
@@ -74,6 +75,8 @@ const setPage = (pageName, id = null) => {
         :food-id="selectedFoodId" 
         @navigate="setPage"
       />
+
+      <DiarySchema v-if="currentPage === 'DiarySchema'" />
 
     </main>
   </div>

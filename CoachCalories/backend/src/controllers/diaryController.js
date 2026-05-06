@@ -126,3 +126,16 @@ exports.removeFoodFromDiary = async (req, res) => {
         return res.status(500).json({ message: "Errore interno del server" });
     }
 };
+
+exports.getCalorieHistory = async (req, res) => {
+    const { username } = req.query;
+    if (!username) return res.status(400).json({ message: 'Username mancante' });
+
+    try {
+        // Recupera tutti i diari dell'utente ordinati per data (ultimi 7 giorni)
+        const history = await diaryModel.find({ username }).sort({ date: 1 }).limit(7);
+        res.json(history);
+    } catch (err) {
+        res.status(500).json({ message: 'Errore nel recupero dello storico' });
+    }
+};
