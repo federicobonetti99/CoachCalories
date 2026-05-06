@@ -13,12 +13,18 @@ const historyData = ref([]);
 const fetchAndRender = async () => {
   try {
     const response = await axios.get(`http://localhost:3000/api/diary/history?username=${username.value}`);
+    
+    // 🟢 CONTROLLA LA CONSOLE
+    console.log("Dati grezzi ricevuti dal server:", response.data); 
+    
     historyData.value = response.data;
 
-    // Se ci sono meno di due giorni, non disegniamo il grafico
     if (historyData.value.length < 2) {
+      console.warn("Dati insufficienti per il grafico");
       return;
     }
+    
+    // ... il resto del codice ...
 
     const labels = historyData.value.map(h => h.date);
     const calories = historyData.value.map(h => h.totals.calorie);

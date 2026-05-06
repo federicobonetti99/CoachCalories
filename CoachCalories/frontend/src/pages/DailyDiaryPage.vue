@@ -38,6 +38,19 @@ const getTodayDateString = () => {
 
 const date = ref(getTodayDateString());
 
+// Funzione per cambiare data con le frecce
+const adjustDate = (days) => {
+  const currentDate = new Date(date.value);
+  currentDate.setDate(currentDate.getDate() + days);
+  
+  const year = currentDate.getFullYear();
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const day = String(currentDate.getDate()).padStart(2, '0');
+  
+  date.value = `${year}-${month}-${day}`;
+  fetchDiary();
+};
+
 // Funzione per caricare il catalogo
 const listFoods = async () => {
   try {
@@ -63,6 +76,9 @@ const fetchDiary = async () => {
     }
   } catch (e) {
     console.error("Errore nel caricamento del diario:", e);
+    // In caso di errore (es. nessun diario trovato), azzera i totali per il giorno selezionato
+    todayFoods.value = [];
+    totals.value = { calorie: 0, carboidrati_g: 0, proteine_g: 0, grassi_g: 0 };
   }
 };
 
@@ -107,7 +123,6 @@ const filteredFoods = computed(() => {
     food.nome.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
 });
-
 onMounted(() => {
   listFoods();
   fetchDiary();
@@ -123,6 +138,24 @@ onMounted(() => {
       <div class="col-md-12 text-center">
         <h1 class="display-5 fw-bold text-success">Diario Giornaliero</h1>
         <p class="text-muted">Tieni traccia di tutto ciò che mangi oggi.</p>
+
+        <div class="d-flex justify-content-center align-items-center gap-3 mt-4">
+          <button class="btn btn-outline-success px-3" @click="adjustDate(-1)">
+            ◀️ Ieri
+          </button>
+          
+          <input 
+            type="date" 
+            v-model="date" 
+            @change="fetchDiary" 
+            class="form-control bg-dark text-white border-secondary w-auto text-center" 
+          />
+
+          <button class="btn btn-outline-success px-3" @click="adjustDate(1)">
+            Domani ▶️
+          </button>
+        </div>
+        
       </div>
     </div>
 

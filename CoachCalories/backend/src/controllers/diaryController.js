@@ -1,4 +1,4 @@
-const Diary = require('../models/diaryModel');
+const Diary = require('../models/DiaryModel');
 
 // 1. Recupera il diario per una data e un username specifici
 exports.getDiaryEntry = async (req, res) => {
@@ -132,10 +132,15 @@ exports.getCalorieHistory = async (req, res) => {
     if (!username) return res.status(400).json({ message: 'Username mancante' });
 
     try {
-        // Recupera tutti i diari dell'utente ordinati per data (ultimi 7 giorni)
-        const history = await diaryModel.find({ username }).sort({ date: 1 }).limit(7);
+        // Sostituisci "diaryModel" con il nome effettivo del tuo modello (es. Diary)
+        const history = await Diary.find({ username })
+            .sort({ date: 1 })
+            .limit(7);
+            
         res.json(history);
     } catch (err) {
-        res.status(500).json({ message: 'Errore nel recupero dello storico' });
+        // Questo loggherà l'errore effettivo sul terminale del backend
+        console.error("Errore nel recupero dello storico:", err);
+        res.status(500).json({ message: 'Errore interno del server' });
     }
 };
