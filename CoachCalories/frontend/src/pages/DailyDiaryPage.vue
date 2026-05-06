@@ -141,7 +141,7 @@ onMounted(() => {
         >
           <div>
             <strong class="text-success">{{ food.nome }}</strong>
-            <span class="ms-2 text-muted small">{{ food.quantita }}{{ food.unita }}</span>
+            <span class="ms-2 text-white small">{{ food.quantita }}{{ food.unita }}</span>
           </div>
           <div class="d-flex align-items-center gap-3">
             <span class="badge bg-dark border border-secondary text-white">{{ food.calorie }} kcal</span>
@@ -158,19 +158,19 @@ onMounted(() => {
 
       <div class="row g-2 mt-2 bg-black p-3 rounded-3 align-items-center">
         <div class="col-md-3 text-center border-end border-secondary">
-          <div class="small text-muted text-uppercase fw-bold">Calorie</div>
+          <div class="small text-white text-uppercase fw-bold">Calorie</div>
           <div class="fs-4 fw-bold text-warning">{{ totals.calorie }} kcal</div>
         </div>
         <div class="col-md-3 text-center border-end border-secondary">
-          <div class="small text-muted text-uppercase fw-bold">Carbs</div>
+          <div class="small text-white text-uppercase fw-bold">Carbs</div>
           <div class="fs-4 fw-bold text-warning">{{ (totals.carboidrati_g || 0).toFixed(1) }}g</div>
         </div>
         <div class="col-md-3 text-center border-end border-secondary">
-          <div class="small text-muted text-uppercase fw-bold">Proteine</div>
+          <div class="small text-white text-uppercase fw-bold">Proteine</div>
           <div class="fs-4 fw-bold text-danger">{{ (totals.proteine_g || 0).toFixed(1) }}g</div>
         </div>
         <div class="col-md-3 text-center">
-          <div class="small text-muted text-uppercase fw-bold">Grassi</div>
+          <div class="small text-white text-uppercase fw-bold">Grassi</div>
           <div class="fs-4 fw-bold text-info">{{ (totals.grassi_g || 0).toFixed(1) }}g</div>
         </div>
       </div>
@@ -214,15 +214,15 @@ onMounted(() => {
                 <div class="macro-container bg-black rounded p-2 mb-3">
                   <div class="row g-0 text-center">
                     <div class="col-4 border-end border-secondary">
-                      <div class="small text-muted" style="font-size: 0.6rem;">Carbs</div>
+                      <div class="small text-white" style="font-size: 0.6rem;">Carbs</div>
                       <div class="fw-bold text-warning" style="font-size: 0.85rem;">{{ food.carboidrati_g }}g</div>
                     </div>
                     <div class="col-4 border-end border-secondary">
-                      <div class="small text-muted" style="font-size: 0.6rem;">Prot</div>
+                      <div class="small text-white" style="font-size: 0.6rem;">Prot</div>
                       <div class="fw-bold text-danger" style="font-size: 0.85rem;">{{ food.proteine_g }}g</div>
                     </div>
                     <div class="col-4">
-                      <div class="small text-muted" style="font-size: 0.6rem;">Grassi</div>
+                      <div class="small text-white" style="font-size: 0.6rem;">Grassi</div>
                       <div class="fw-bold text-info" style="font-size: 0.85rem;">{{ food.grassi_g }}g</div>
                     </div>
                   </div>
@@ -230,7 +230,7 @@ onMounted(() => {
               </div>
 
               <div>
-                <small class="text-muted d-block mb-2">⚖️ Quantità base: {{ food.quantita }}{{ food.unita }}</small>
+                <small class="text-white d-block mb-2">⚖️ Quantità base: {{ food.quantita }}{{ food.unita }}</small>
                 
                 <button 
                   class="btn btn-sm btn-success w-100 fw-bold py-2" 
