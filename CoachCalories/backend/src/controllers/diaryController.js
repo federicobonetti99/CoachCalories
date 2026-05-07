@@ -132,14 +132,16 @@ exports.getCalorieHistory = async (req, res) => {
     if (!username) return res.status(400).json({ message: 'Username mancante' });
 
     try {
-        // Sostituisci "diaryModel" con il nome effettivo del tuo modello (es. Diary)
+        // 1. Prendi gli ULTIMI 7 record inseriti (ordinando decrescente)
         const history = await Diary.find({ username })
-            .sort({ date: 1 })
+            .sort({ date: -1 }) // -1 prende i più recenti per primi
             .limit(7);
             
-        res.json(history);
+        // 2. Rigira l'array per il grafico (che vuole ordine cronologico: 1, 2, 3...)
+        const chronologicalHistory = history.reverse();
+
+        res.json(chronologicalHistory);
     } catch (err) {
-        // Questo loggherà l'errore effettivo sul terminale del backend
         console.error("Errore nel recupero dello storico:", err);
         res.status(500).json({ message: 'Errore interno del server' });
     }
