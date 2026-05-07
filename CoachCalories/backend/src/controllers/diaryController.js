@@ -128,21 +128,52 @@ exports.removeFoodFromDiary = async (req, res) => {
 };
 
 exports.getCalorieHistory = async (req, res) => {
-    const { username } = req.query;
+    const { username, days } = req.query; // Riceviamo 'days' dal frontend
     if (!username) return res.status(400).json({ message: 'Username mancante' });
 
-    try {
-        // 1. Prendi gli ULTIMI 7 record inseriti (ordinando decrescente)
-        const history = await Diary.find({ username })
-            .sort({ date: -1 }) // -1 prende i più recenti per primi
-            .limit(7);
-            
-        // 2. Rigira l'array per il grafico (che vuole ordine cronologico: 1, 2, 3...)
-        const chronologicalHistory = history.reverse();
+    // Convertiamo 'days' in numero, default a 7 se non specificato o se è "all"
+    const limitDays = days === 'all' ? 0 : parseInt(days) || 7;
 
-        res.json(chronologicalHistory);
+    try {
+        const history = await Diary.find({ username })
+            .sort({ date: -1 }) 
+            .limit(limitDays); // Se limit è 0, MongoDB restituisce tutto
+            
+        res.json(history.reverse());
     } catch (err) {
-        console.error("Errore nel recupero dello storico:", err);
-        res.status(500).json({ message: 'Errore interno del server' });
+        console.error("Errore recupero storico:", err);
+        res.status(500).json({ message: 'Errore interno' });
+    }
+};
+
+exports.clearDailyDiary = async (req, res) => {
+    const { date } = req.params;   // Esempio: '2026-05-07'
+    const { username } = req.query; // Esempio: 'Federico'
+
+    // Se mancano questi due, il database non saprebbe cosa cercare 
+    // e noi blocchiamo l'operazione per sicurezza
+    if (!date || !username) {
+        return res.status(400).json({ message: "Dati mancanti per la cancellazione" });
+    }
+
+    try {
+        const result = await Diary.findOneAndUpdate(
+            { date: date, username: username }, // FILTRO: Solo questa data, solo questo utente
+            { 
+                $set: { 
+                    foods: [], 
+                    totals: { calorie: 0, carboidrati_g: 0, proteine_g: 0, grassi_g: 0 } 
+                } 
+            },
+            { new: true }
+        );
+
+        if (!result) {
+            return res.status(404).json({ message: "Nessun dato trovato per questa data" });
+        }
+
+        res.json({ success: true, message: `Giornata ${date} svuotata correttamente` });
+    } catch (err) {
+        res.status(500).json({ message: "Errore interno" });
     }
 };

@@ -116,6 +116,25 @@ const removeFoodFromDiary = async (foodId) => {
   }
 };
 
+// Funzione per svuotare l'intera giornata
+const clearDailyDiary = async () => {
+  // Conferma di sicurezza
+  if (!confirm(`Sei sicuro di voler cancellare TUTTI i cibi del giorno ${date.value}?`)) return;
+
+  try {
+    // Chiamata al backend (usa la rotta che abbiamo definito prima)
+    await axios.delete(`http://localhost:3000/api/diary/clear/${date.value}?username=${username.value}`);
+    
+    // Reset locale immediato per aggiornare l'interfaccia senza ricaricare
+    todayFoods.value = [];
+    totals.value = { calorie: 0, carboidrati_g: 0, proteine_g: 0, grassi_g: 0 };
+    
+  } catch (e) {
+    console.error("Errore nello svuotamento del diario:", e);
+    alert("Impossibile svuotare il diario.");
+  }
+};
+
 // Ricerca nel catalogo
 const filteredFoods = computed(() => {
   if (!searchQuery.value) return foods.value;
@@ -160,8 +179,18 @@ onMounted(() => {
     </div>
 
     <div class="card bg-dark text-white shadow-sm border-0 rounded-4 p-4 mb-5">
-      <h4 class="text-success fw-bold mb-3">Resoconto della giornata del {{ date }}</h4>
-
+      
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="text-success fw-bold m-0">Resoconto della giornata del {{ date }}</h4>
+        
+        <button 
+          v-if="todayFoods.length > 0" 
+          class="btn btn-sm btn-outline-danger px-3 fw-bold" 
+          @click="clearDailyDiary"
+        >
+          🗑️ Svuota Giornata
+        </button>
+      </div>
       <div v-if="todayFoods.length === 0" class="text-center text-white-50 py-3">
         Nessun alimento inserito per oggi. Cerca i cibi dal catalogo qui sotto e aggiungili!
       </div>
