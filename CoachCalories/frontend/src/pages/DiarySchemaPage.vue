@@ -11,23 +11,48 @@ let macroChart = null;
 
 const historyData = ref([]);
 
+// --- LOGICA CALCOLO TDEE ---
+const getTDEE = () => {
+  const weight = parseFloat(localStorage.getItem('weight')) || 0;
+  const height = parseFloat(localStorage.getItem('height')) || 0;
+  const age = parseInt(localStorage.getItem('age')) || 0;
+  const gender = localStorage.getItem('gender') || 'M';
+  const activityLevel = localStorage.getItem('activityLevel') || 'moderate';
+
+  if (weight === 0 || height === 0 || age === 0) return 2000; // Fallback di sicurezza
+
+  // Formula Mifflin-St Jeor
+  let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+  bmr = (gender === 'M') ? bmr + 5 : bmr - 161;
+
+  const multipliers = {
+    sedentary: 1.2,
+    light: 1.375,
+    moderate: 1.55,
+    very: 1.725,
+    extra: 1.9
+  };
+
+  return Math.round(bmr * (multipliers[activityLevel] || 1.2));
+};
+
+const maintenanceCalories = ref(getTDEE());
+
 const fetchAndRender = async () => {
   try {
     const response = await axios.get(`http://localhost:3000/api/diary/history?username=${username.value}`);
     historyData.value = response.data;
 
-    // Se ci sono meno di due giorni, non disegniamo i grafici
-    if (historyData.value.length < 2) {
-      return;
-    }
+    if (historyData.value.length < 2) return;
 
     const labels = historyData.value.map(h => h.date);
-    
-    // 🟢 Estrazione dei dati con conversione a Number esplicita
     const calories = historyData.value.map(h => Number(h.totals?.calorie) || 0);
     const carbs = historyData.value.map(h => Number(h.totals?.carboidrati_g) || 0);
     const proteins = historyData.value.map(h => Number(h.totals?.proteine_g) || 0);
     const fats = historyData.value.map(h => Number(h.totals?.grassi_g) || 0);
+
+    // Creiamo un array piatto con il valore di mantenimento per ogni punto del grafico
+    const maintenanceLine = labels.map(() => maintenanceCalories.value);
 
     await nextTick();
 
@@ -41,13 +66,24 @@ const fetchAndRender = async () => {
           labels: labels,
           datasets: [
             {
-              label: 'Calorie (kcal)',
+              label: 'Calorie Assunte (kcal)',
               data: calories,
-              borderColor: '#198754', // Verde
+              borderColor: '#198754',
               backgroundColor: 'rgba(25, 135, 84, 0.1)',
-              fill: false,
+              fill: true,
               tension: 0.4,
-              pointRadius: 5
+              pointRadius: 5,
+              zIndex: 2
+            },
+            {
+              label: 'Mantenimento Stimato',
+              data: maintenanceLine,
+              borderColor: '#ffc107', // Giallo
+              borderDash: [5, 5], // Linea tratteggiata
+              pointRadius: 0,
+              fill: false,
+              borderWidth: 2,
+              zIndex: 1
             }
           ]
         },
@@ -71,7 +107,7 @@ const fetchAndRender = async () => {
       });
     }
 
-    // 2. Grafico Macronutrienti
+    // 2. Grafico Macronutrienti (rimane invariato)
     if (chartMacroRef.value) {
       if (macroChart) macroChart.destroy();
       const ctxMacro = chartMacroRef.value.getContext('2d');
@@ -80,50 +116,20 @@ const fetchAndRender = async () => {
         data: {
           labels: labels,
           datasets: [
-            {
-              label: 'Carbs (g)',
-              data: carbs,
-              borderColor: '#ffc107', // Giallo
-              backgroundColor: 'rgba(255, 193, 7, 0.1)',
-              fill: false,
-              tension: 0.4,
-              pointRadius: 5
-            },
-            {
-              label: 'Proteine (g)',
-              data: proteins,
-              borderColor: '#dc3545', // Rosso
-              backgroundColor: 'rgba(220, 53, 69, 0.1)',
-              fill: false,
-              tension: 0.4,
-              pointRadius: 5
-            },
-            {
-              label: 'Grassi (g)',
-              data: fats,
-              borderColor: '#0dcaf0', // Azzurro
-              backgroundColor: 'rgba(13, 202, 240, 0.1)',
-              fill: false,
-              tension: 0.4,
-              pointRadius: 5
-            }
+            { label: 'Carbs (g)', data: carbs, borderColor: '#ffc107', tension: 0.4 },
+            { label: 'Proteine (g)', data: proteins, borderColor: '#dc3545', tension: 0.4 },
+            { label: 'Grassi (g)', data: fats, borderColor: '#0dcaf0', tension: 0.4 }
           ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { labels: { color: '#fff', font: { size: 14 } } }
+            legend: { labels: { color: '#fff' } }
           },
           scales: {
-            y: { 
-              grid: { color: 'rgba(255, 255, 255, 0.1)' }, 
-              ticks: { color: '#fff' } 
-            },
-            x: { 
-              grid: { display: false }, 
-              ticks: { color: '#fff' } 
-            }
+            y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#fff' } },
+            x: { ticks: { color: '#fff' } }
           }
         }
       });
@@ -142,7 +148,7 @@ onMounted(fetchAndRender);
     <div class="row">
       <div class="col-md-12 text-center mb-4">
         <h1 class="display-6 fw-bold text-success">Analisi Andamento</h1>
-        <p class="text-white-50">Visualizza separatamente il bilancio calorico e l'assunzione di macronutrienti.</p>
+        <p class="text-white-50">Confronto tra calorie assunte e fabbisogno calcolato.</p>
       </div>
     </div>
 
@@ -150,14 +156,19 @@ onMounted(fetchAndRender);
       <div class="text-center text-white py-5">
         <i class="fa-solid fa-chart-line fs-1 text-success mb-3"></i>
         <h4>Ancora pochi dati per l'analisi</h4>
-        <p class="text-white-50">Continua ad aggiungere alimenti al diario nei prossimi giorni per vedere il tuo andamento!</p>
+        <p class="text-white-50">Aggiungi i pasti per almeno 2 giorni per vedere i grafici.</p>
       </div>
     </div>
 
     <div v-else class="d-flex flex-column gap-4 mb-5">
       
       <div class="card bg-dark border-secondary shadow-lg p-4 rounded-4">
-        <h4 class="text-success text-center mb-4">Andamento Calorie</h4>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+           <h4 class="text-success m-0">Andamento Calorie</h4>
+           <div class="badge bg-warning text-dark p-2">
+             Target: {{ maintenanceCalories }} kcal
+           </div>
+        </div>
         <div class="chart-container" style="height: 380px;">
           <canvas ref="chartCalRef"></canvas>
         </div>
@@ -173,6 +184,3 @@ onMounted(fetchAndRender);
     </div>
   </div>
 </template>
-
-<style scoped>
-</style>

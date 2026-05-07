@@ -1,14 +1,14 @@
 <script setup>
-import { ref } from 'vue'
-import axios from 'axios' 
-import replaceByDefault from "@/lib/replaceByDefault"
+import { ref } from 'vue';
+import axios from 'axios'; 
+import replaceByDefault from "@/lib/replaceByDefault";
 
 // Definiamo gli emit corretti
-const emit = defineEmits(['login-success'])
+const emit = defineEmits(['login-success']);
 
-const email = ref('')
-const password = ref('')
-const errorMessage = ref('') 
+const email = ref('');
+const password = ref('');
+const errorMessage = ref(''); 
 
 const handleLogin = async () => {
   try {
@@ -17,13 +17,24 @@ const handleLogin = async () => {
       password: password.value
     });
 
-    if (response.data.success) {
-      // Salviamo i dati nel LocalStorage del browser
+if (response.data.success) {
+      // Dati base obbligatori
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('authGrade', response.data.authenticationGrade);
-      
-      // Salviamo anche l'username
       localStorage.setItem('username', response.data.username);
+
+      // Salvataggio sicuro dei parametri fisiologici
+      // Controlliamo che il peso esista nella risposta prima di procedere
+      if (response.data.weight !== undefined && response.data.weight !== null) {
+        localStorage.setItem('weight', response.data.weight);
+        localStorage.setItem('height', response.data.height);
+        localStorage.setItem('age', response.data.age);
+        localStorage.setItem('gender', response.data.gender);
+        localStorage.setItem('activityLevel', response.data.activityLevel);
+        console.log("Dati fisiologici salvati con successo:", response.data.weight + "kg");
+      } else {
+        console.warn("Dati fisiologici non trovati nella risposta del server.");
+      }
 
       // Comunichiamo ad App.vue che il login è riuscito
       emit('login-success');
@@ -35,6 +46,7 @@ const handleLogin = async () => {
   }
 };
 </script>
+
 <template>
   <div class="homeContainer">
     <div class="last shadow-lg outer-green-border">
@@ -86,7 +98,7 @@ const handleLogin = async () => {
             </div>
 
             <div v-if="errorMessage" class="alert alert-danger py-2 mb-3 text-center small fw-bold">
-        ⚠️    {{ errorMessage }}
+              ⚠️    {{ errorMessage }}
             </div>
 
             <button type="submit" class="btn btn-coach w-100 fw-bold py-2 mb-3">

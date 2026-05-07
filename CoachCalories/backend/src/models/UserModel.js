@@ -1,5 +1,20 @@
 const mongoose = require('mongoose');
 
+// Sotto-schema per la cronologia fisiologica
+const physiologicalEntrySchema = new mongoose.Schema({
+    weight: { type: Number, required: true },
+    height: { type: Number, required: true },
+    age: { type: Number, required: true },
+    gender: { type: String, default: 'M' },
+    activityLevel: { 
+        type: String, 
+        enum: ['sedentary', 'light', 'moderate', 'very', 'extra'], 
+        default: 'moderate' 
+    },
+    startDate: { type: Date, default: Date.now },
+    endDate: { type: Date, default: null }
+});
+
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -16,12 +31,12 @@ const userSchema = new mongoose.Schema({
     },
     authenticationGrade: {
         type: String, 
-        enum: ['admin', 'normal'], // Accetta solo questi due valori
+        enum: ['admin', 'normal'],
         default: 'normal'
-    }
+    },
+    physiologicalHistory: [physiologicalEntrySchema]
 });
 
-// Creiamo il modello 'User' basato sullo schema
 const userModel = mongoose.model('User', userSchema);
 
 module.exports = { userModel };
