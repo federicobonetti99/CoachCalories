@@ -1,79 +1,15 @@
-[
-  {
-    "nome": "Avocado",
-    "quantita": 100,
-    "unita": "g",
-    "calorie": 160,
-    "carboidrati_g": 9,
-    "proteine_g": 2,
-    "grassi_g": 15,
-    "img": "avocado.jpg",
-    "note": "Ottima fonte di grassi sani."
-  },
-  {
-    "nome": "Petto di Pollo",
-    "quantita": 100,
-    "unita": "g",
-    "calorie": 165,
-    "carboidrati_g": 0,
-    "proteine_g": 31,
-    "grassi_g": 3.6,
-    "img": "petto-pollo-piastra.jpg",
-    "note": "Cotto senza pelle."
-  },
-  {
-    "nome": "Cosce di Pollo",
-    "quantita": 100,
-    "unita": "g",
-    "calorie": 210,
-    "carboidrati_g": 0,
-    "proteine_g": 24,
-    "grassi_g": 12,
-    "img": "cosce-pollo-forno.jpg",
-    "note": "Valori con pelle inclusa."
-  },
-  {
-    "nome": "Mela Fuji",
-    "quantita": 1,
-    "unita": "pz",
-    "calorie": 72,
-    "carboidrati_g": 19,
-    "proteine_g": 0.4,
-    "grassi_g": 0.2,
-    "img": "mela-fuji.jpg",
-    "note": "Peso medio circa 180g."
-  },
-  {
-    "nome": "Riso Basmati",
-    "quantita": 100,
-    "unita": "g",
-    "calorie": 349,
-    "carboidrati_g": 78,
-    "proteine_g": 8.5,
-    "grassi_g": 0.9,
-    "img": "risoBasmati.jpg",
-    "note": "Riso a chicco lungo."
-  },
-  {
-    "nome": "Uovo",
-    "quantita": 1,
-    "unita": "pz",
-    "calorie": 78,
-    "carboidrati_g": 0.6,
-    "proteine_g": 6.3,
-    "grassi_g": 5.3,
-    "img": "uovo.jpg",
-    "note": "Circa 60g a pezzo."
-  },
-  {
-    "nome": "Yogurt Greco 0%",
-    "quantita": 150,
-    "unita": "g",
-    "calorie": 85,
-    "carboidrati_g": 6,
-    "proteine_g": 15,
-    "grassi_g": 0,
-    "img": "yogurt-greco-magro.jpg",
-    "note": "Vasetto standard."
-  }
-]
+{"_id":{"$oid":"69faef68cbb29d25f185a376"},"nome":"Uovo","quantita":1,"unita":"pz","calorie":78,"carboidrati_g":0.6,"proteine_g":6.3,"grassi_g":5.3,"img":"uovo.jpg","note":"Circa 60g a pezzo."}
+{"_id":{"$oid":"69faef68cbb29d25f185a378"},"nome":"Mela Fuji","quantita":1,"unita":"pz","calorie":72,"carboidrati_g":19,"proteine_g":0.4,"grassi_g":0.2,"img":"mela-fuji.jpg","note":"Peso medio circa 180g."}
+{"_id":{"$oid":"69faef68cbb29d25f185a379"},"nome":"Riso Basmati","quantita":100,"unita":"g","calorie":349,"carboidrati_g":78,"proteine_g":8.5,"grassi_g":0.9,"img":"risoBasmati.jpg","note":"Riso a chicco lungo."}
+{"_id":{"$oid":"69faef68cbb29d25f185a37b"},"nome":"Avocado","quantita":100,"unita":"g","calorie":160,"carboidrati_g":9,"proteine_g":2,"grassi_g":15,"img":"avocado.jpg","note":"Ottima fonte di grassi sani."}
+{"_id":{"$oid":"69faefb4f4ea87f00d847468"},"nome":"Petto di Pollo","quantita":100,"unita":"g","calorie":165,"carboidrati_g":0,"proteine_g":31,"grassi_g":3.6,"img":"petto-di-pollo.jpg","__v":0}
+{"_id":{"$oid":"69faff4626d8d045665de8af"},"nome":"Yogurt Greco 0","quantita":150,"unita":"g","calorie":58,"carboidrati_g":5,"proteine_g":10,"grassi_g":0,"img":"yogurt-greco-0.jpg","__v":0}
+{"_id":{"$oid":"69faff6626d8d045665de8b5"},"nome":"Cosce di Pollo","quantita":100,"unita":"g","calorie":210,"carboidrati_g":0,"proteine_g":24,"grassi_g":12,"img":"cosce-di-pollo.avif","__v":0}
+{"_id":{"$oid":"69fafffa26d8d045665de8b8"},"nome":"Scatoletta di tonno","quantita":100,"unita":"g","calorie":192,"carboidrati_g":0,"proteine_g":25,"grassi_g":10,"img":"scatoletta-di-tonno.jpg","__v":0}
+{"_id":{"$oid":"69fb026926d8d045665de8d2"},"nome":"Cous cous","quantita":100,"unita":"g","calorie":360,"carboidrati_g":72,"proteine_g":13,"grassi_g":1,"img":"cous-cous.jpg","__v":0}
+{"_id":{"$oid":"69fc4cee00ebff804967c34a"},"nome":"Banana","quantita":100,"unita":"g","calorie":89,"carboidrati_g":23,"proteine_g":1,"grassi_g":0,"img":"banana.jpg","__v":0}
+{"_id":{"$oid":"69fc87e9c2c38b3a4acd4566"},"nome":"Simmenthal","quantita":90,"unita":"g","calorie":56,"carboidrati_g":0,"proteine_g":10,"grassi_g":1,"img":"simmenthal.jpg","__v":0}
+{"_id":{"$oid":"69fc899dc2c38b3a4acd45b4"},"nome":"Bustina di zucchero","quantita":6,"unita":"g","calorie":24,"carboidrati_g":6,"proteine_g":0,"grassi_g":0,"img":"bustina-di-zucchero.jpg","__v":0}
+{"_id":{"$oid":"69fc8abcc2c38b3a4acd45ca"},"nome":"Milk PRO High Protein Crème Caramel","quantita":150,"unita":"g","calorie":114,"carboidrati_g":8,"proteine_g":15,"grassi_g":2,"img":"milk-pro-high-protein-crème-caramel.jpg","__v":0}
+{"_id":{"$oid":"69fcabf8d0ef885878281985"},"nome":"Pacchetto di cracker gran pavesi","quantita":31,"unita":"g","calorie":136,"carboidrati_g":21,"proteine_g":3,"grassi_g":4,"img":"pacchetto-di-cracker-gran-pavesi-senza-sale.png","__v":0}
+{"_id":{"$oid":"69fcd7f6d0ef8858782819ed"},"nome":"Pancetta Carne","quantita":100,"unita":"g","calorie":480,"carboidrati_g":0,"proteine_g":10,"grassi_g":48,"img":"pancetta-carne.jpg","__v":0}
