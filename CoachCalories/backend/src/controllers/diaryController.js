@@ -27,9 +27,10 @@ exports.getDiaryEntry = async (req, res) => {
 };
 
 // 2. Aggiunge un alimento al diario dell'utente
+// 2. Aggiunge un alimento al diario dell'utente con calcolo quantità dinamica
 exports.addFoodToDiary = async (req, res) => {
     try {
-        const { date, food, username } = req.body;
+        const { date, food, username, customQuantita } = req.body; // Riceviamo customQuantita dal frontend
 
         if (!username) {
             return res.status(400).json({ message: 'Username non fornito' });
@@ -37,20 +38,28 @@ exports.addFoodToDiary = async (req, res) => {
 
         let diary = await Diary.findOne({ date, username });
 
-        // Struttura dell'alimento da aggiungere
+        // Definiamo i pesi per fare la proporzione
+        const baseQuantita = Number(food.quantita) || 100; // La quantità di riferimento nel database (es. 90g o 100g)
+        const targetQuantita = customQuantita ? Number(customQuantita) : baseQuantita; // Se non arriva nulla dal frontend, usa il default
+
+        // Calcoliamo il fattore di moltiplicazione (es: 180g inseriti / 90g base = 2)
+        const fattore = targetQuantita / baseQuantita;
+
+        // Struttura dell'alimento con i valori nutrizionali ricalcolati
         const newFoodItem = {
             foodId: food._id || food.foodId,
             nome: food.nome,
-            calorie: food.calorie || 0,
-            carboidrati_g: food.carboidrati_g || 0,
-            proteine_g: food.proteine_g || 0,
-            grassi_g: food.grassi_g || 0,
-            quantita: food.quantita || 1,
+            // Arrotondiamo le calorie all'intero e i macro a un solo decimale per non avere numeri infiniti
+            calorie: Math.round((food.calorie || 0) * fattore),
+            carboidrati_g: Number(((food.carboidrati_g || 0) * fattore).toFixed(1)),
+            proteine_g: Number(((food.proteine_g || 0) * fattore).toFixed(1)),
+            grassi_g: Number(((food.grassi_g || 0) * fattore).toFixed(1)),
+            quantita: targetQuantita,
             unita: food.unita || 'g'
         };
 
         if (!diary) {
-            // Crea un nuovo documento diario se non esiste per l'utente
+            // Se non esiste ancora la giornata, creiamo il documento da zero
             diary = new Diary({
                 date,
                 username,
@@ -63,14 +72,14 @@ exports.addFoodToDiary = async (req, res) => {
                 }
             });
         } else {
-            // Aggiunge l'alimento all'array del diario esistente dell'utente
+            // Se il diario esiste già, aggiungiamo il cibo all'array
             diary.foods.push(newFoodItem);
             
-            // Aggiorna i totali della giornata
-            diary.totals.calorie = (diary.totals.calorie || 0) + newFoodItem.calorie;
-            diary.totals.carboidrati_g = (diary.totals.carboidrati_g || 0) + newFoodItem.carboidrati_g;
-            diary.totals.proteine_g = (diary.totals.proteine_g || 0) + newFoodItem.proteine_g;
-            diary.totals.grassi_g = (diary.totals.grassi_g || 0) + newFoodItem.grassi_g;
+            // Sommiamo i valori ricalcolati ai totali giornalieri
+            diary.totals.calorie = Math.round((diary.totals.calorie || 0) + newFoodItem.calorie);
+            diary.totals.carboidrati_g = Number(((diary.totals.carboidrati_g || 0) + newFoodItem.carboidrati_g).toFixed(1));
+            diary.totals.proteine_g = Number(((diary.totals.proteine_g || 0) + newFoodItem.proteine_g).toFixed(1));
+            diary.totals.grassi_g = Number(((diary.totals.grassi_g || 0) + newFoodItem.grassi_g).toFixed(1));
         }
 
         await diary.save();

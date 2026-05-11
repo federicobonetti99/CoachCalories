@@ -3,7 +3,6 @@ import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import replaceByDefault from '@/lib/replaceByDefault';
 
-// Dichiarazione della prop passata dal layout per eliminare il warning su userGrade
 defineProps({
   userGrade: {
     type: String,
@@ -24,10 +23,8 @@ const totals = ref({
   grassi_g: 0
 });
 
-// Recuperiamo l'username dell'utente dal Local Storage
 const username = ref(localStorage.getItem('username'));
 
-// Funzione per ottenere la data odierna nel formato YYYY-MM-DD
 const getTodayDateString = () => {
   const date = new Date();
   const year = date.getFullYear();
@@ -38,7 +35,6 @@ const getTodayDateString = () => {
 
 const date = ref(getTodayDateString());
 
-// Funzione per cambiare data con le frecce
 const adjustDate = (days) => {
   const currentDate = new Date(date.value);
   currentDate.setDate(currentDate.getDate() + days);
@@ -51,13 +47,15 @@ const adjustDate = (days) => {
   fetchDiary();
 };
 
-// Funzione per caricare il catalogo
+// Carica il catalogo e aggiunge ad ogni cibo un campo "quantitaInserita" modificabile
 const listFoods = async () => {
   try {
     const response = await axios.get("http://localhost:3000/foods");
     const data = response.data;
     data.forEach((food) => {
       food.img = food.img ? `/img/foods/${food.img}` : null;
+      // AGGIUNTO: Inizializziamo la quantità modificabile con quella di base del cibo
+      food.quantitaInserita = food.quantita || 100;
     });
     foods.value = data;
   } catch (e) {
@@ -65,33 +63,31 @@ const listFoods = async () => {
   }
 };
 
-// Funzione per caricare il diario dal database
 const fetchDiary = async () => {
   try {
     const response = await axios.get(`http://localhost:3000/api/diary?date=${date.value}&username=${username.value}`);
-    
     if (response.data) {
       todayFoods.value = response.data.foods || [];
       totals.value = response.data.totals || { calorie: 0, carboidrati_g: 0, proteine_g: 0, grassi_g: 0 };
     }
   } catch (e) {
     console.error("Errore nel caricamento del diario:", e);
-    // In caso di errore (es. nessun diario trovato), azzera i totali per il giorno selezionato
     todayFoods.value = [];
     totals.value = { calorie: 0, carboidrati_g: 0, proteine_g: 0, grassi_g: 0 };
   }
 };
 
-// Aggiungi un alimento al diario
+// Aggiungi l'alimento inviando la quantità personalizzata scritta nel box di quel cibo
 const addFoodToDiary = async (food) => {
   try {
-    const response = await axios.post("http://localhost:3000/api/diary/add", 
-      {
-        date: date.value,
-        food: food,
-        username: username.value
-      }
-    );
+    const qtyToSend = food.quantitaInserita || food.quantita || 100;
+
+    const response = await axios.post("http://localhost:3000/api/diary/add", {
+      date: date.value,
+      food: food,
+      username: username.value,
+      customQuantita: qtyToSend // Spediamo la quantità scritta nell'input!
+    });
     
     todayFoods.value = response.data.foods;
     totals.value = response.data.totals;
@@ -101,13 +97,10 @@ const addFoodToDiary = async (food) => {
   }
 };
 
-// Rimuovi un alimento dal diario
 const removeFoodFromDiary = async (foodId) => {
   if (!confirm("Sei sicuro di voler rimuovere questo alimento?")) return;
-
   try {
     const response = await axios.delete(`http://localhost:3000/api/diary/${date.value}/${foodId}?username=${username.value}`);
-    
     todayFoods.value = response.data.foods;
     totals.value = response.data.totals;
   } catch (e) {
@@ -116,32 +109,25 @@ const removeFoodFromDiary = async (foodId) => {
   }
 };
 
-// Funzione per svuotare l'intera giornata
 const clearDailyDiary = async () => {
-  // Conferma di sicurezza
   if (!confirm(`Sei sicuro di voler cancellare TUTTI i cibi del giorno ${date.value}?`)) return;
-
   try {
-    // Chiamata al backend (usa la rotta che abbiamo definito prima)
     await axios.delete(`http://localhost:3000/api/diary/clear/${date.value}?username=${username.value}`);
-    
-    // Reset locale immediato per aggiornare l'interfaccia senza ricaricare
     todayFoods.value = [];
     totals.value = { calorie: 0, carboidrati_g: 0, proteine_g: 0, grassi_g: 0 };
-    
   } catch (e) {
     console.error("Errore nello svuotamento del diario:", e);
     alert("Impossibile svuotare il diario.");
   }
 };
 
-// Ricerca nel catalogo
 const filteredFoods = computed(() => {
   if (!searchQuery.value) return foods.value;
   return foods.value.filter(food => 
     food.nome.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
 });
+
 onMounted(() => {
   listFoods();
   fetchDiary();
@@ -174,12 +160,10 @@ onMounted(() => {
             Domani ▶️
           </button>
         </div>
-        
       </div>
     </div>
 
     <div class="card bg-dark text-white shadow-sm border-0 rounded-4 p-4 mb-5">
-      
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="text-success fw-bold m-0">Resoconto della giornata del {{ date }}</h4>
         
@@ -203,7 +187,7 @@ onMounted(() => {
         >
           <div>
             <strong class="text-success">{{ food.nome }}</strong>
-            <span class="ms-2 text-white small">{{ food.quantita }}{{ food.unita }}</span>
+            <span class="ms-2 text-white-50 small">({{ food.quantita }}{{ food.unita }})</span>
           </div>
           <div class="d-flex align-items-center gap-3">
             <span class="badge bg-dark border border-secondary text-white">{{ food.calorie }} kcal</span>
@@ -292,7 +276,18 @@ onMounted(() => {
               </div>
 
               <div>
-                <small class="text-white d-block mb-2">⚖️ Quantità base: {{ food.quantita }}{{ food.unita }}</small>
+                <div class="mb-2">
+                  <label class="text-white-50 small mb-1 d-block">Modifica quantità ({{ food.unita }}):</label>
+                  <div class="input-group input-group-sm">
+                    <input 
+                      type="number" 
+                      class="form-control bg-black text-white border-secondary text-center fw-bold" 
+                      v-model.number="food.quantitaInserita"
+                      min="1"
+                    />
+                    <span class="input-group-text bg-secondary text-white border-secondary">{{ food.unita }}</span>
+                  </div>
+                </div>
                 
                 <button 
                   class="btn btn-sm btn-success w-100 fw-bold py-2" 
