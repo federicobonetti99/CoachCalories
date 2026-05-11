@@ -10,7 +10,7 @@ let calChart = null;
 let macroChart = null;
 
 const historyData = ref([]);
-const period = ref(7); // <--- AGGIUNTO: Periodo di default
+const period = ref(7); // Periodo di default
 
 // --- LOGICA CALCOLO TDEE ---
 const getTDEE = () => {
@@ -49,18 +49,56 @@ const fetchAndRender = async () => {
     const response = await axios.get(
       `http://localhost:3000/api/diary/history?username=${username.value}&days=${period.value}`
     );
-    historyData.value = response.data;
+    
+    const rawData = response.data;
 
-    // Se non c'è proprio nulla, non renderizzare i grafici
-    if (historyData.value.length === 0) return;
+    // Se il database è completamente vuoto, fermiamo il rendering
+    if (rawData.length === 0) {
+      historyData.value = [];
+      return;
+    }
 
-    const labels = historyData.value.map(h => h.date);
-    const calories = historyData.value.map(h => Number(h.totals?.calorie) || 0);
-    const carbs = historyData.value.map(h => Number(h.totals?.carboidrati_g) || 0);
-    const proteins = historyData.value.map(h => Number(h.totals?.proteine_g) || 0);
-    const fats = historyData.value.map(h => Number(h.totals?.grassi_g) || 0);
+    // --- AGGIUNTO: GENERAZIONE DELLE DATE CONSECUTIVE ---
+    // Determiniamo quanti giorni generare (es. 7 per settimana, 30 per mese o tutto)
+    const daysToGenerate = period.value === 'all' ? 30 : parseInt(period.value) || 7;
+    const completeLabels = [];
+    const today = new Date();
 
-    const maintenanceLine = labels.map(() => maintenanceCalories.value);
+    for (let i = daysToGenerate - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(today.getDate() - i);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      completeLabels.push(`${year}-${month}-${day}`);
+    }
+
+    // --- AGGIUNTO: MAPPIAMO I DATI REALI O METTIAMO 0 SE IL GIORNO MANCA ---
+    const calories = [];
+    const carbs = [];
+    const proteins = [];
+    const fats = [];
+
+    completeLabels.forEach(dateStr => {
+      // Cerca se esiste una registrazione per questa data nel database
+      const dayRecord = rawData.find(h => h.date === dateStr);
+
+      if (dayRecord) {
+        calories.push(Number(dayRecord.totals?.calorie) || 0);
+        carbs.push(Number(dayRecord.totals?.carboidrati_g) || 0);
+        proteins.push(Number(dayRecord.totals?.proteine_g) || 0);
+        fats.push(Number(dayRecord.totals?.grassi_g) || 0);
+      } else {
+        // Giorno non registrato? Mettiamo tutto a zero
+        calories.push(0);
+        carbs.push(0);
+        proteins.push(0);
+        fats.push(0);
+      }
+    });
+
+    historyData.value = completeLabels; // Popoliamo per mostrare i grafici nel template
+    const maintenanceLine = completeLabels.map(() => maintenanceCalories.value);
 
     await nextTick();
 
@@ -71,11 +109,11 @@ const fetchAndRender = async () => {
       calChart = new Chart(ctxCal, {
         type: 'line',
         data: {
-          labels: labels,
+          labels: completeLabels, // Usiamo le label consecutive temporali
           datasets: [
             {
               label: 'Calorie Assunte (kcal)',
-              data: calories,
+              data: calories, // Contiene i dati reali e gli zeri
               borderColor: '#198754',
               backgroundColor: 'rgba(25, 135, 84, 0.1)',
               fill: true,
@@ -114,7 +152,7 @@ const fetchAndRender = async () => {
       macroChart = new Chart(ctxMacro, {
         type: 'line',
         data: {
-          labels: labels,
+          labels: completeLabels, // Usiamo le label consecutive temporali
           datasets: [
             { label: 'Carbs (g)', data: carbs, borderColor: '#ffc107', tension: 0.4, pointRadius: 5 },
             { label: 'Proteine (g)', data: proteins, borderColor: '#dc3545', tension: 0.4, pointRadius: 5 },
