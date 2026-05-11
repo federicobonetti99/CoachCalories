@@ -83,8 +83,6 @@ const cancellaCibo = async () => {
                 </button>
                 <button @click="cancellaCibo" class="btn btn-sm btn-outline-danger">Cancella</button>
               </template>
-              
-              <button class="btn btn-sm btn-outline-success">Aggiungi +</button>
 
             </div>
           </div>

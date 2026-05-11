@@ -25,6 +25,33 @@ const totals = ref({
 
 const username = ref(localStorage.getItem('username'));
 
+// --- NUOVA LOGICA: CALCOLO DEL TDEE DIRETTAMENTE NEL DIARIO ---
+const getTDEE = () => {
+  const weight = parseFloat(localStorage.getItem('weight')) || 0;
+  const height = parseFloat(localStorage.getItem('height')) || 0;
+  const age = parseInt(localStorage.getItem('age')) || 0;
+  const gender = localStorage.getItem('gender') || 'M';
+  const activityLevel = localStorage.getItem('activityLevel') || 'moderate';
+
+  if (weight === 0 || height === 0 || age === 0) return 2000; // Fallback di sicurezza
+
+  // Formula Mifflin-St Jeor
+  let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+  bmr = (gender === 'M') ? bmr + 5 : bmr - 161;
+
+  const multipliers = {
+    sedentary: 1.2,
+    light: 1.375,
+    moderate: 1.55,
+    very: 1.725,
+    extra: 1.9
+  };
+
+  return Math.round(bmr * (multipliers[activityLevel] || 1.2));
+};
+
+const maintenanceCalories = ref(getTDEE());
+
 const getTodayDateString = () => {
   const date = new Date();
   const year = date.getFullYear();
@@ -54,7 +81,6 @@ const listFoods = async () => {
     const data = response.data;
     data.forEach((food) => {
       food.img = food.img ? `/img/foods/${food.img}` : null;
-      // AGGIUNTO: Inizializziamo la quantità modificabile con quella di base del cibo
       food.quantitaInserita = food.quantita || 100;
     });
     foods.value = data;
@@ -77,7 +103,6 @@ const fetchDiary = async () => {
   }
 };
 
-// Aggiungi l'alimento inviando la quantità personalizzata scritta nel box di quel cibo
 const addFoodToDiary = async (food) => {
   try {
     const qtyToSend = food.quantitaInserita || food.quantita || 100;
@@ -86,7 +111,7 @@ const addFoodToDiary = async (food) => {
       date: date.value,
       food: food,
       username: username.value,
-      customQuantita: qtyToSend // Spediamo la quantità scritta nell'input!
+      customQuantita: qtyToSend
     });
     
     todayFoods.value = response.data.foods;
@@ -204,8 +229,10 @@ onMounted(() => {
 
       <div class="row g-2 mt-2 bg-black p-3 rounded-3 align-items-center">
         <div class="col-md-3 text-center border-end border-secondary">
-          <div class="small text-white text-uppercase fw-bold">Calorie</div>
-          <div class="fs-4 fw-bold text-warning">{{ totals.calorie }} kcal</div>
+          <div class="small text-white text-uppercase fw-bold">Calorie Assunte</div>
+          <div class="fs-4 fw-bold" :class="totals.calorie > maintenanceCalories ? 'text-danger' : 'text-warning'">
+            {{ totals.calorie }} / {{ maintenanceCalories }} kcal
+          </div>
         </div>
         <div class="col-md-3 text-center border-end border-secondary">
           <div class="small text-white text-uppercase fw-bold">Carbs</div>

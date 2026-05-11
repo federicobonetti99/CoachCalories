@@ -9,7 +9,6 @@
             <p class="text-white-50">Modulo inserimento</p>
           </div>
 
-          <!-- Il submit del form ora scatena la funzione inviaTest -->
           <form @submit.prevent="inviaTest">
             
             <div class="row mb-4 g-3 align-items-center">
@@ -19,12 +18,10 @@
               </div>
               <div class="col-md-5">
                 <label class="form-label fw-bold text-white">Foto (File)</label>
-                <!-- Al cambio file aggiorniamo la variabile, ma non inviamo ancora nulla -->
                 <input type="file" @change="selezionaFile" class="form-control bg-dark text-white border-secondary">
               </div>
             </div>
 
-            <!-- Feedback immediato sotto l'input -->
             <div class="text-center mb-3">
               <p v-if="risposta" class="text-success fw-bold small">✅ {{ risposta }}</p>
               <p v-if="errore" class="text-danger fw-bold small">❌ {{ errore }}</p>
@@ -73,7 +70,6 @@
               </div>
             </div>
 
-            <!-- IL TASTONE VERDE: ora si occupa di far partire il caricamento foto -->
             <button type="submit" class="btn btn-success btn-lg w-100 fw-bold py-3 shadow-lg border-0">
                 💾 SALVA ALIMENTO NEL CLOUD
             </button>
@@ -88,8 +84,10 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router'; 
 
-// Dati reattivi necessari per il template (ignorati dall'invio attuale)
+const router = useRouter();
+
 const dummyData = reactive({
   nome: '',
   quantita: 100,
@@ -119,20 +117,13 @@ const inviaTest = async () => {
   
   const fd = new FormData();
   
-  // 1. Dati testuali
   fd.append('nome', dummyData.nome); 
-  
-  // 2. Aggiungi tutti i campi numerici (così non arrivano più come NaN al server)
   fd.append('calorie', dummyData.calorie || 0);
   fd.append('proteine', dummyData.proteine || 0);
   fd.append('grassi', dummyData.grassi || 0);
   fd.append('carboidrati', dummyData.carboidrati || 0);
   fd.append('quantita', dummyData.quantita || 100);
-  
-  // 3. Unità di misura: il database richiede 'unita', quindi impostiamo 'unita'
   fd.append('unita', dummyData.unitaMisura || 'g');
-  
-  // 4. Immagine
   fd.append('image', fileSelezionato.value); 
 
   try {
@@ -142,6 +133,11 @@ const inviaTest = async () => {
     
     risposta.value = res.data.message;
     console.log("File salvato come:", res.data.filename);
+    
+    // --- MODIFICATO: Ora ti reindirizza a '/catalog' invece che alla home '/' ---
+    setTimeout(() => {
+      router.push('/catalog'); 
+    }, 1200); 
     
   } catch (err) {
     errore.value = "Errore nel caricamento.";

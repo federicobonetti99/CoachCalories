@@ -5,7 +5,7 @@ import NotFound from '../pages/NotFound.vue';
 
 const routes = [
     { path: '/', name: "Home", component: Home },
-    { path: '/', name: "Catalog", component: Catalog },
+    { path: '/Catalog', name: "Catalog", component: Catalog },
     { path: '/:pathMatch(.*)*', component: NotFound }
 ];
 
