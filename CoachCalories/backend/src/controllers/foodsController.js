@@ -135,19 +135,34 @@ exports.createFood = async (req, res) => {
     }
 };
 
+exports.approveFoodProposal = async (req, res) => {
+    try {
+        console.log(`--- CONTROLLER: Approvazione alimento ID: ${req.params.id} ---`);
+
+        const approvedFood = await foodModel.findByIdAndUpdate(
+            req.params.id,
+            { approvato: true }, // Metti 'approved: true' se sul DB è in inglese
+            { new: true }
+        );
+
+        if (!approvedFood) {
+            return res.status(404).json({ success: false, message: "Alimento non trovato" });
+        }
+
+        res.status(200).json({ success: true, data: approvedFood });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
 exports.createProposal = async (req, res) => {
     try {
         console.log("--- PROPOSTA UTENTE RICEVUTA ---");
-        console.log("Dati testo (body):", req.body);
-        console.log("Dati file (file):", req.file);
-
-        // Estraiamo i campi esattamente con i nomi inviati dal FormData del frontend
         const { nome, calorie, proteine, grassi, carboidrati, quantita, unita, unitaMisura } = req.body;
 
         const newProposal = new foodModel({
             nome: nome,
             calorie: Number(calorie) || 0,
-            // 🌟 CORRETTO: Mappiamo le variabili del body sui campi reali dello schema (_g)
             proteine_g: Number(proteine) || 0,
             grassi_g: Number(grassi) || 0,
             carboidrati_g: Number(carboidrati) || 0,
@@ -161,20 +176,14 @@ exports.createProposal = async (req, res) => {
         
         res.status(201).json({ 
             success: true, 
-            message: "Proposta inviata all'admin con successo! Verrà esaminata.", 
+            message: "Proposta inviata con successo!", 
             data: savedProposal 
         });
-
     } catch (err) {
         console.error("❌ ERRORE NEL SALVATAGGIO DELLA PROPOSTA:", err.message);
-        res.status(500).json({ 
-            success: false, 
-            message: "Errore nel server durante il salvataggio della proposta", 
-            error: err.message 
-        });
+        res.status(500).json({ success: false, error: err.message });
     }
 };
-
 
 exports.getAdminProposals = async (req, res) => {
     try {

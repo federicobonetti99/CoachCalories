@@ -103,14 +103,13 @@ const fetchProposals = async () => {
   loading.value = true;
   errore.value = '';
   try {
-    // 🌟 QUI AGGANCIAMO LA NUOVA FUNZIONE DEL BACKEND!
     const response = await axios.get("http://localhost:3000/foods/admin/proposals-list");
-    
-    // Non serve più fare il .filter() lato client, ci pensa già MongoDB a mandarci solo quelle false!
     const soloProposte = response.data;
 
     soloProposte.forEach((food) => {
-      food.img = food.img ? `http://localhost:3000/img/foods/${food.img}` : NOT_FOUND_IMAGE;
+      // 🌟 MODIFICA QUESTA RIGA: Togliamo "http://localhost:3000" 
+      // Usiamo il percorso relativo partendo dalla cartella 'public' o dagli asset statici del tuo frontend
+      food.img = food.img ? `/img/foods/${food.img}` : NOT_FOUND_IMAGE;
     });
 
     proposals.value = soloProposte;
@@ -126,11 +125,11 @@ const approvaProposta = async (id) => {
   messaggio.value = '';
   errore.value = '';
   try {
-    await axios.put(`http://localhost:3000/foods/${id}`, {
-      approvato: true
-    });
+    // 🌟 Puntiamo alla nuova rotta dedicata usando .patch
+    await axios.patch(`http://localhost:3000/foods/${id}/approve`);
+    
     messaggio.value = "Alimento approvato ed inserito ufficialmente nel catalogo!";
-    await fetchProposals();
+    await fetchProposals(); // Ricarica la lista
   } catch (err) {
     console.error("Errore approvazione:", err);
     errore.value = "Errore durante l'approvazione del cibo.";
