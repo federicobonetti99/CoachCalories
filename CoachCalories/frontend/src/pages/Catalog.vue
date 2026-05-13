@@ -34,8 +34,8 @@ const filteredFoods = computed(() => {
   // 2. Se non c'è testo nella barra di ricerca, restituiamo tutti i cibi visibili
   if (!searchQuery.value) return cibiVisibili;
 
-  // 3. Altrimenti applichiamo il filtro testuale sui soli cibi visibili
-  return cibiVisibles.filter(food => 
+  // 3. Altrimenti applichiamo il filtro testuale sui soli cibi visibili (CORRETTO)
+  return cibiVisibili.filter(food => 
     food.nome.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
 });
