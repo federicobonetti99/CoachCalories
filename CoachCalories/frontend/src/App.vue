@@ -8,6 +8,9 @@ import AddFoodPage from './pages/AddFoodPage.vue'
 import EditFoodPage from './pages/EditFoodPage.vue'
 import DailyDiaryPage from './pages/DailyDiaryPage.vue'
 import DiarySchema from './pages/DiarySchemaPage.vue'
+import FoodProposalPage from './pages/FoodProposalPage.vue' 
+// 👈 1. IMPORTIAMO LA NUOVA PAGINA PER L'ADMIN
+import AdminProposalsPage from './pages/AdminProposalsPage.vue' 
 
 const isLogged = ref(false)
 const userGrade = ref('')
@@ -77,6 +80,10 @@ const setPage = (pageName, id = null) => {
       />
 
       <DiarySchema v-if="currentPage === 'DiarySchema'" />
+
+      <FoodProposalPage v-if="currentPage === 'FoodProposalPage'" />
+
+      <AdminProposalsPage v-if="currentPage === 'AdminProposalsPage'" @navigate="setPage" />
 
     </main>
   </div>

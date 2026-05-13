@@ -30,7 +30,12 @@ const foodSchema = new mongoose.Schema({
         default: 0
     },
     img: String,
-    note: String
+    note: String,
+    // --- NUOVO CAMPO PER LA GESTIONE PROPOSTE UTENTE ---
+    approvato: {
+        type: Boolean
+        // Lasciamo senza default per far funzionare i cibi vecchi come approvati
+    }
 });
 
 // Il primo parametro 'Food' è il nome del modello, 

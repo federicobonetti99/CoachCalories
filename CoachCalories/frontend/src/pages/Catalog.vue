@@ -6,10 +6,9 @@ import { onMounted, ref, computed } from "vue";
 
 const foods = ref([]);
 const searchQuery = ref("");
-// Stato di login
-const isLogged = ref(false);
 
-// Aggiungiamo la variabile per il grado dell'utente
+// Stato di login e permessi inizializzati vuoti per sicurezza
+const isLogged = ref(false);
 const userGrade = ref("");
 
 const listFoods = async () => {
@@ -27,9 +26,16 @@ const listFoods = async () => {
   }
 };
 
+// --- MODIFICATO: Controllo di approvazione e ricerca combinati ---
 const filteredFoods = computed(() => {
-  if (!searchQuery.value) return foods.value;
-  return foods.value.filter(food => 
+  // 1. Filtriamo prima per stato di approvazione (mostra solo se approvato !== false)
+  const cibiVisibili = foods.value.filter(food => food.approvato !== false);
+
+  // 2. Se non c'è testo nella barra di ricerca, restituiamo tutti i cibi visibili
+  if (!searchQuery.value) return cibiVisibili;
+
+  // 3. Altrimenti applichiamo il filtro testuale sui soli cibi visibili
+  return cibiVisibles.filter(food => 
     food.nome.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
 });
@@ -37,10 +43,20 @@ const filteredFoods = computed(() => {
 onMounted(() => {
   listFoods();
   
-  // Controlliamo lo stato di login e il ruolo salvato in localStorage
-  if (localStorage.getItem("authGrade")) {
+  // --- FEATURE CONTROLLATA: Il token è l'unica fonte di verità ---
+  const token = localStorage.getItem("token");
+  const savedGrade = localStorage.getItem("authGrade");
+
+  if (token && savedGrade) {
+    // Sei loggato DAVVERO solo se c'è il token attivo nella sessione attuale
     isLogged.value = true;
-    userGrade.value = localStorage.getItem("authGrade"); // 👈 Recuperiamo il ruolo dell'utente
+    userGrade.value = savedGrade;
+  } else {
+    // Altrimenti (Chrome chiuso o logout), facciamo tabula rasa istantanea dei residui
+    isLogged.value = false;
+    userGrade.value = "";
+    localStorage.removeItem("authGrade"); 
+    localStorage.removeItem("username"); // Rimuoviamo anche l'utente per pulizia totale
   }
 });
 </script>

@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import axios from 'axios'; 
 import replaceByDefault from "@/lib/replaceByDefault";
+import { onMounted } from 'vue'
 
 // Definiamo gli emit corretti
 const emit = defineEmits(['login-success']);
@@ -23,8 +24,6 @@ if (response.data.success) {
       localStorage.setItem('authGrade', response.data.authenticationGrade);
       localStorage.setItem('username', response.data.username);
 
-      // Salvataggio sicuro dei parametri fisiologici
-      // Controlliamo che il peso esista nella risposta prima di procedere
       if (response.data.weight !== undefined && response.data.weight !== null) {
         localStorage.setItem('weight', response.data.weight);
         localStorage.setItem('height', response.data.height);
@@ -45,6 +44,14 @@ if (response.data.success) {
     alert('Credenziali errate o errore del server');
   }
 };
+
+onMounted(() => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("authGrade");
+  localStorage.removeItem("username");
+  
+  console.log("Dati di accesso azzerati all'apertura del LoginContainer.");
+});
 </script>
 
 <template>

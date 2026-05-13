@@ -26,8 +26,9 @@ const storage = multer.diskStorage({
         // Recuperiamo l'estensione originale del file caricato
         const estensione = path.extname(file.originalname);
 
-        // NOME FINALE: solo nome pulito + estensione (es. pasta.jpg)
-        cb(null, nomePulito + estensione);
+        // NOME FINALE CON TIMESTAMP: Evita sovrascritture se più utenti inviano proposte (es. kefir-17156000000.jpg)
+        const timestamp = Date.now();
+        cb(null, `${nomePulito}-${timestamp}${estensione}`);
     }
 });
 
@@ -39,17 +40,30 @@ const upload = multer({ storage: storage });
 router.route('/')
     .get(controller.listFoods);
 
-// Rotta per il salvataggio (POST /add)
+// Rotta per il salvataggio Admin (POST /add)
 router.post('/add', upload.single('image'), (req, res, next) => {
-    console.log("--- ROUTER: Richiesta POST intercettata ---");
+    console.log("--- ROUTER: Richiesta POST Admin intercettata ---");
     next();
 }, controller.createFood);
 
+// Adesso usa Multer esattamente come l'admin per elaborare la foto allegata!
+router.post('/proposals', upload.single('image'), (req, res, next) => {
+    console.log("--- ROUTER: Richiesta POST Proposta Utente intercettata ---");
+    next();
+}, controller.createProposal);
+
+
+router.get('/admin/proposals-list', controller.getAdminProposals);
+
+// Rotte per query specifiche
 router.route('/top-calorie').get(controller.findTopCalorieFood);
 router.route('/search').get(controller.findFoodByQuery);
+
+// Rotte basate sull'ID dell'alimento
 router.route('/:id')
     .get(controller.readFood)
-    .put(upload.single('image'), controller.updateFood) //  Adesso è corretto!
+    .put(upload.single('image'), controller.updateFood)
     .delete(controller.deleteFood);
     
+
 module.exports = router;

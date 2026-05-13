@@ -1,7 +1,10 @@
 const { foodModel } = require('../models/foodModel'); // Assicurati che il percorso sia corretto
 
+// 1. LISTA ALIMENTI: Modificata con la logica del Fallback per nascondere le proposte in attesa
 exports.listFoods = (req, res) => {
-    foodModel.find()
+    // Cerchiamo tutto ciò che NON ha approvato uguale a false ($ne: false)
+    // Questo include sia i cibi esplicitamente true, sia quelli vecchi dove il campo non esiste
+    foodModel.find({ approvato: { $ne: false } })
         .then(doc => {
             res.json(doc);
         })
@@ -70,10 +73,10 @@ exports.deleteFood = (req, res) => {
         });
 }
 
-// 6. Trova l'alimento "Super" (ho rimosso l'ID fisso del prof che non funzionerebbe)
+// 6. Trova l'alimento "Super"
 exports.findTopCalorieFood = (req, res) => {
-    foodModel.findOne()
-        .sort({ calorie: -1 }) // -1 per ordine decrescente (il più calorico)
+    foodModel.findOne({ approvato: { $ne: false } }) // Escludiamo anche qui le proposte non approvate
+        .sort({ calorie: -1 }) 
         .then(doc => {
             res.json(doc);
         })
@@ -82,14 +85,15 @@ exports.findTopCalorieFood = (req, res) => {
         });
 }
 
-// 7. Ricerca avanzata (trasformata da "Attore/Anno" a "Nome/Calorie")
+// 7. Ricerca avanzata
 exports.findFoodByQuery = (req, res) => {
     const { nome, minCal, maxCal } = req.query;
 
-    let query = foodModel.find();
+    // Partiamo già escludendo le proposte non approvate dal catalogo di ricerca
+    let query = foodModel.find({ approvato: { $ne: false } });
 
     if (nome) {
-        query = query.where('nome').regex(new RegExp(nome, 'i')); // 'i' per ignorare maiuscole/minuscole
+        query = query.where('nome').regex(new RegExp(nome, 'i')); 
     }
     if (minCal && maxCal) {
         query = query.where('calorie').gte(minCal).lte(maxCal);
@@ -104,43 +108,84 @@ exports.findFoodByQuery = (req, res) => {
         });
 }
 
+// L'Admin crea un alimento (Approvato di default)
 exports.createFood = async (req, res) => {
     try {
-        console.log("--- RICHIESTA RICEVUTA ---");
-        console.log("Dati testo (body):", req.body);
-        console.log("Dati file (file):", req.file);
-
-        // Estrai i dati dal body
+        console.log("--- CREAZIONE ALIMENTO ADMIN ---");
         const { nome, calorie, proteine, grassi, carboidrati, quantita, unita, unitaMisura } = req.body;
 
         const newFood = new foodModel({
             nome: nome,
             calorie: Number(calorie) || 0,
-            // Mappiamo i campi del form alle proprietà attese dal database
             proteine_g: Number(proteine) || 0,
             grassi_g: Number(grassi) || 0,
             carboidrati_g: Number(carboidrati) || 0,
             quantita: Number(quantita) || 100,
             unita: unita || unitaMisura || 'g', 
-            img: req.file ? req.file.filename : 'default.jpg'
+            img: req.file ? req.file.filename : 'default.jpg',
+            approvato: true // L'admin lo crea già attivo ed utilizzabile
         });
 
         const savedFood = await newFood.save();
-        
-        console.log("✅ Alimento salvato con successo!");
-        
-        res.status(201).json({
-            success: true,
-            message: "Alimento creato!",
-            data: savedFood
-        });
+        res.status(201).json({ success: true, message: "Alimento creato!", data: savedFood });
 
     } catch (err) {
         console.error("❌ ERRORE NEL SALVATAGGIO:", err.message);
-        res.status(500).json({
-            success: false,
-            message: "Errore nel server durante il salvataggio",
-            error: err.message
+        res.status(500).json({ success: false, message: "Errore nel server durante il salvataggio", error: err.message });
+    }
+};
+
+exports.createProposal = async (req, res) => {
+    try {
+        console.log("--- PROPOSTA UTENTE RICEVUTA ---");
+        console.log("Dati testo (body):", req.body);
+        console.log("Dati file (file):", req.file);
+
+        // Estraiamo i campi esattamente con i nomi inviati dal FormData del frontend
+        const { nome, calorie, proteine, grassi, carboidrati, quantita, unita, unitaMisura } = req.body;
+
+        const newProposal = new foodModel({
+            nome: nome,
+            calorie: Number(calorie) || 0,
+            // 🌟 CORRETTO: Mappiamo le variabili del body sui campi reali dello schema (_g)
+            proteine_g: Number(proteine) || 0,
+            grassi_g: Number(grassi) || 0,
+            carboidrati_g: Number(carboidrati) || 0,
+            quantita: Number(quantita) || 100,
+            unita: unita || unitaMisura || 'g', 
+            img: req.file ? req.file.filename : 'default.jpg',
+            approvato: false 
         });
+
+        const savedProposal = await newProposal.save();
+        
+        res.status(201).json({ 
+            success: true, 
+            message: "Proposta inviata all'admin con successo! Verrà esaminata.", 
+            data: savedProposal 
+        });
+
+    } catch (err) {
+        console.error("❌ ERRORE NEL SALVATAGGIO DELLA PROPOSTA:", err.message);
+        res.status(500).json({ 
+            success: false, 
+            message: "Errore nel server durante il salvataggio della proposta", 
+            error: err.message 
+        });
+    }
+};
+
+
+exports.getAdminProposals = async (req, res) => {
+    try {
+        console.log("--- RICHIESTA PROPOSTE DA PARTE DELL'ADMIN ---");
+        
+        // Cerchiamo solo i cibi dove approvato è strettamente FALSE
+        const proposals = await foodModel.find({ approvato: false });
+        
+        res.status(200).json(proposals);
+    } catch (err) {
+        console.error("❌ Errore recupero proposte admin:", err.message);
+        res.status(500).json({ success: false, error: err.message });
     }
 };

@@ -27,7 +27,6 @@ exports.getDiaryEntry = async (req, res) => {
 };
 
 // 2. Aggiunge un alimento al diario dell'utente
-// 2. Aggiunge un alimento al diario dell'utente con calcolo quantità dinamica
 exports.addFoodToDiary = async (req, res) => {
     try {
         const { date, food, username, customQuantita } = req.body; // Riceviamo customQuantita dal frontend
