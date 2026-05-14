@@ -1,5 +1,7 @@
 <script setup>
 import NavButton from "@/components/NavButton.vue";
+// 🌟 IMPORTIAMO IL NUOVO COMPONENTE DROPDOWN PER LE NOTIFICHE
+import NotificationDropdown from "./NotificationDropdown.vue";
 
 const props = defineProps(['userGrade']);
 const emit = defineEmits(['logout', 'navigate']);
@@ -46,17 +48,12 @@ const emit = defineEmits(['logout', 'navigate']);
 
         </ul>
       </div>
+
       <div class="d-flex align-items-center ms-auto">
         
-        <button 
-          v-if="userGrade"
-          class="btn btn-link text-decoration-none me-3 p-0 mailbox-btn"
-          title="Centro Notifiche"
-          @click.prevent="$emit('navigate', 'NotificationCenterPage')"
-          style="font-size: 1.5rem; line-height: 1;"
-        >
-          📬
-        </button>
+        <div v-if="userGrade" class="me-3">
+          <NotificationDropdown @view-all="$emit('navigate', 'NotificationCenterPage')" />
+        </div>
 
         <span class="me-3 small fw-bold text-muted text-uppercase d-none d-sm-inline">
           {{ userGrade || 'Ospite' }}
@@ -77,13 +74,5 @@ const emit = defineEmits(['logout', 'navigate']);
 }
 .nav-link:hover {
   color: #198754 !important;
-}
-
-/* Effetto di rimbalzo morbido sulla casetta */
-.mailbox-btn {
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.mailbox-btn:hover {
-  transform: scale(1.25);
 }
 </style>
