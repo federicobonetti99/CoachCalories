@@ -46,11 +46,22 @@ const emit = defineEmits(['logout', 'navigate']);
 
         </ul>
       </div>
-
       <div class="d-flex align-items-center ms-auto">
+        
+        <button 
+          v-if="userGrade"
+          class="btn btn-link text-decoration-none me-3 p-0 mailbox-btn"
+          title="Centro Notifiche"
+          @click.prevent="$emit('navigate', 'NotificationCenterPage')"
+          style="font-size: 1.5rem; line-height: 1;"
+        >
+          📬
+        </button>
+
         <span class="me-3 small fw-bold text-muted text-uppercase d-none d-sm-inline">
           {{ userGrade || 'Ospite' }}
         </span>
+        
         <button v-if="userGrade" @click="$emit('logout')" class="btn btn-outline-danger btn-sm">
           Esci
         </button>
@@ -61,11 +72,18 @@ const emit = defineEmits(['logout', 'navigate']);
 </template>
 
 <style scoped>
-/* Aggiungi qui eventuali stili specifici */
 .nav-link {
   transition: color 0.2s ease-in-out;
 }
 .nav-link:hover {
   color: #198754 !important;
+}
+
+/* Effetto di rimbalzo morbido sulla casetta */
+.mailbox-btn {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.mailbox-btn:hover {
+  transform: scale(1.25);
 }
 </style>

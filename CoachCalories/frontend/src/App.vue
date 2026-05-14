@@ -9,13 +9,15 @@ import EditFoodPage from './pages/EditFoodPage.vue'
 import DailyDiaryPage from './pages/DailyDiaryPage.vue'
 import DiarySchema from './pages/DiarySchemaPage.vue'
 import FoodProposalPage from './pages/FoodProposalPage.vue' 
-// 👈 1. IMPORTIAMO LA NUOVA PAGINA PER L'ADMIN
 import AdminProposalsPage from './pages/AdminProposalsPage.vue' 
+
+// Importiamo la pagina delle notifiche (usando l'alias NotificationCenterPage per chiarezza)
+import NotificationCenterPage from './pages/NotificationCenter.vue'
 
 const isLogged = ref(false)
 const userGrade = ref('')
 const currentPage = ref('Home')
-const selectedFoodId = ref(null) // Variabile per l'ID
+const selectedFoodId = ref(null) 
 
 onMounted(() => {
   const savedEmail = localStorage.getItem('userEmail')
@@ -39,7 +41,6 @@ const handleLogout = () => {
   currentPage.value = 'Home'
 }
 
-// Funzione aggiornata per accettare anche l'ID
 const setPage = (pageName, id = null) => {
   currentPage.value = pageName
   if (id) {
@@ -85,10 +86,12 @@ const setPage = (pageName, id = null) => {
 
       <AdminProposalsPage v-if="currentPage === 'AdminProposalsPage'" @navigate="setPage" />
 
+      <NotificationCenterPage v-if="currentPage === 'NotificationCenterPage'" @navigate="setPage" />
+
     </main>
   </div>
 </template>
 
 <style scoped>
-/* Aggiungi qui eventuali stili specifici */
+/* File pulito, rimosso lo stile bg-black che forzava lo sfondo nero in alto */
 </style>
