@@ -84,11 +84,11 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import axios from 'axios';
-import { useRouter } from 'vue-router'; 
 
-const router = useRouter();
+// Definiamo gli emit per la navigazione manuale
+const emit = defineEmits(['navigate']);
 
-const dummyData = reactive({
+const initialState = {
   nome: '',
   quantita: 100,
   unitaMisura: 'g',
@@ -96,7 +96,10 @@ const dummyData = reactive({
   proteine: 0,
   grassi: 0,
   carboidrati: 0
-});
+};
+
+// Inizializziamo dummyData con una copia dello stato iniziale
+const dummyData = reactive({ ...initialState });
 
 const fileSelezionato = ref(null);
 const risposta = ref('');
@@ -104,6 +107,18 @@ const errore = ref('');
 
 const selezionaFile = (event) => {
   fileSelezionato.value = event.target.files[0];
+};
+
+const resetForm = () => {
+  // 1. Reset dei campi testo e numeri
+  Object.assign(dummyData, initialState);
+  
+  // 2. Reset del file e dei messaggi
+  fileSelezionato.value = null;
+  
+  // 3. Reset manuale dell'input file nel DOM (opzionale ma consigliato)
+  const fileInput = document.querySelector('input[type="file"]');
+  if (fileInput) fileInput.value = "";
 };
 
 const inviaTest = async () => {
@@ -116,7 +131,6 @@ const inviaTest = async () => {
   errore.value = '';
   
   const fd = new FormData();
-  
   fd.append('nome', dummyData.nome); 
   fd.append('calorie', dummyData.calorie || 0);
   fd.append('proteine', dummyData.proteine || 0);
@@ -131,17 +145,20 @@ const inviaTest = async () => {
         headers: { 'Content-Type': 'multipart/form-data' }
     });
     
-    risposta.value = res.data.message;
-    console.log("File salvato come:", res.data.filename);
+    risposta.value = "✅ " + res.data.message;
     
-    // --- MODIFICATO: Ora ti reindirizza a '/catalog' invece che alla home '/' ---
+    // ✨ SVUOTIAMO IL FORM
+    resetForm();
+
+    // Se vuoi comunque cambiare pagina dopo un po':
     setTimeout(() => {
-      router.push('/catalog'); 
-    }, 1200); 
+      risposta.value = '';
+      emit('navigate', 'Catalog'); 
+    }, 2000); 
     
   } catch (err) {
     errore.value = "Errore nel caricamento.";
-    const errorDetail = err.response?.data?.dettaglio || err.response?.data?.message || err.message;
+    const errorDetail = err.response?.data?.message || err.message;
     console.error("Dettaglio Errore:", errorDetail);
   }
 };

@@ -85,10 +85,10 @@
 import { ref, reactive } from 'vue';
 import axios from 'axios';
 
-// Definiamo l'emit per far funzionare la navigazione manuale del tuo progetto
 const emit = defineEmits(['navigate']);
 
-const dummyData = reactive({
+// 1. Stato iniziale per il reset rapido
+const initialState = {
   nome: '',
   quantita: 100,
   unitaMisura: 'g',
@@ -96,7 +96,9 @@ const dummyData = reactive({
   proteine: 0,
   grassi: 0,
   carboidrati: 0
-});
+};
+
+const dummyData = reactive({ ...initialState });
 
 const fileSelezionato = ref(null);
 const risposta = ref('');
@@ -104,6 +106,16 @@ const errore = ref('');
 
 const selezionaFile = (event) => {
   fileSelezionato.value = event.target.files[0];
+};
+
+// 2. Funzione per svuotare tutto
+const resetForm = () => {
+  Object.assign(dummyData, initialState);
+  fileSelezionato.value = null;
+  
+  // Puliamo l'input file nel DOM
+  const fileInput = document.querySelector('input[type="file"]');
+  if (fileInput) fileInput.value = "";
 };
 
 const inviaProposta = async () => {
@@ -115,7 +127,6 @@ const inviaProposta = async () => {
   risposta.value = 'Invio della proposta in corso...';
   errore.value = '';
 
-  // 🌟 RECUPERIAMO L'EMAIL DI CHI STA PROPONENDO L'ALIMENTO
   const userEmail = localStorage.getItem('userEmail') || 'utente_misterioso@test.com';
 
   const fd = new FormData();
@@ -126,8 +137,6 @@ const inviaProposta = async () => {
   fd.append('carboidrati', dummyData.carboidrati || 0);
   fd.append('quantita', dummyData.quantita || 100);
   fd.append('unita', dummyData.unitaMisura || 'g');
-  
-  // 🌟 INVIAMO IL CAMPO AL BACKEND
   fd.append('proposedBy', userEmail);
   
   if (fileSelezionato.value) {
@@ -139,9 +148,11 @@ const inviaProposta = async () => {
         headers: { 'Content-Type': 'multipart/form-data' }
     });
     
-    risposta.value = res.data.message;
+    risposta.value = "✅ " + res.data.message;
+
+    // 3. ✨ Svuotiamo il form dopo il successo
+    resetForm();
     
-    // Torniamo alla Home usando la tua logica dei componenti invece del vecchio router rotto
     setTimeout(() => {
       emit('navigate', 'Home'); 
     }, 1500); 
