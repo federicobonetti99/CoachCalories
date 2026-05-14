@@ -84,9 +84,9 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import axios from 'axios';
-import { useRouter } from 'vue-router'; 
 
-const router = useRouter();
+// Definiamo l'emit per far funzionare la navigazione manuale del tuo progetto
+const emit = defineEmits(['navigate']);
 
 const dummyData = reactive({
   nome: '',
@@ -115,7 +115,9 @@ const inviaProposta = async () => {
   risposta.value = 'Invio della proposta in corso...';
   errore.value = '';
 
-  // Usiamo di nuovo FormData perché dobbiamo caricare l'immagine
+  // 🌟 RECUPERIAMO L'EMAIL DI CHI STA PROPONENDO L'ALIMENTO
+  const userEmail = localStorage.getItem('userEmail') || 'utente_misterioso@test.com';
+
   const fd = new FormData();
   fd.append('nome', dummyData.nome);
   fd.append('calorie', dummyData.calorie || 0);
@@ -124,6 +126,9 @@ const inviaProposta = async () => {
   fd.append('carboidrati', dummyData.carboidrati || 0);
   fd.append('quantita', dummyData.quantita || 100);
   fd.append('unita', dummyData.unitaMisura || 'g');
+  
+  // 🌟 INVIAMO IL CAMPO AL BACKEND
+  fd.append('proposedBy', userEmail);
   
   if (fileSelezionato.value) {
     fd.append('image', fileSelezionato.value);
@@ -136,8 +141,9 @@ const inviaProposta = async () => {
     
     risposta.value = res.data.message;
     
+    // Torniamo alla Home usando la tua logica dei componenti invece del vecchio router rotto
     setTimeout(() => {
-      router.push('/'); 
+      emit('navigate', 'Home'); 
     }, 1500); 
     
   } catch (err) {

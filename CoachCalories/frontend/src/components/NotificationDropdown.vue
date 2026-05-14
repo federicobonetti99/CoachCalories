@@ -69,7 +69,6 @@
     </ul>
   </div>
 </template>
-
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { io } from 'socket.io-client';
@@ -80,17 +79,39 @@ const liveNotifications = ref([]);
 const unreadCount = ref(0);
 
 const goToCenter = () => {
-  // Spara l'evento per chiudere la tendina e dire alla Navbar di cambiare pagina
   emit('view-all');
 };
 
 onMounted(() => {
-  // Connessione WebSocket al tuo backend Node
+  // 1. Connessione WebSocket al backend Node
   const socket = io('http://localhost:3000');
-  const userGrade = localStorage.getItem("authGrade");
+  
+  // Funzione interna per recuperare i dati aggiornati dal localStorage
+  const getAuthDetails = () => {
+    return {
+      userGrade: localStorage.getItem("authGrade"),
+      userEmail: localStorage.getItem("userEmail")
+    };
+  };
+
+  // 🌟 FUNZIONE DI REGISTRAZIONE SICURA
+  const registraSuSocket = () => {
+    const { userGrade } = getAuthDetails();
+    if (userGrade) {
+      socket.emit('registra-utente', { userGrade });
+      console.log(`📡 [Socket] Tentativo di registrazione inviato come: ${userGrade}`);
+    }
+  };
+
+  // Proviamo a registrarci subito all'avvio
+  registraSuSocket();
+
+  // 🌟 TRACCO DI SICUREZZA: Se il localStorage era in ritardo, riproviamo dopo mezzo secondo
+  setTimeout(() => {
+    registraSuSocket();
+  }, 500);
 
   const addLiveNote = (title, message, type = 'success') => {
-    // Inserisce il nuovo messaggio in cima all'array
     liveNotifications.value.unshift({
       title,
       message,
@@ -99,33 +120,32 @@ onMounted(() => {
     });
     unreadCount.value++;
 
-    // Mantiene massimo 5 messaggi a schermo nella tendina per non allungare la pagina
     if (liveNotifications.value.length > 5) {
       liveNotifications.value.pop();
     }
   };
 
-  // 1. Ascolto Promemoria Serale (per tutti)
+  // Ascolto dei segnali in tempo reale dal server
   socket.on('notifica-serale', (data) => {
     addLiveNote("Promemoria", data.message, 'info');
   });
 
-  // 2. Ascolto per l'Admin (quando arriva una proposta)
   socket.on('nuova-proposta-admin', (data) => {
+    // Leggiamo il grado in tempo reale per sicurezza
+    const { userGrade } = getAuthDetails();
     if (userGrade === 'admin') {
       addLiveNote("Nuova Proposta", data.message, 'success');
     }
   });
 
-  // 3. Ascolto per l'Utente (quando l'admin approva/rifiuta)
   socket.on('proposta-gestita-utente', (data) => {
+    const { userGrade } = getAuthDetails();
     if (userGrade !== 'admin') {
       const title = data.status === 'approvata' ? "Approvata! ✅" : "Rifiutata ❌";
       addLiveNote(title, data.message, data.status === 'approvata' ? 'success' : 'error');
     }
   });
 
-  // Pulizia automatica della connessione quando il componente muore
   onUnmounted(() => {
     socket.disconnect();
   });

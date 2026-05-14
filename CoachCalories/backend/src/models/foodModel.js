@@ -31,10 +31,15 @@ const foodSchema = new mongoose.Schema({
     },
     img: String,
     note: String,
-    // --- NUOVO CAMPO PER LA GESTIONE PROPOSTE UTENTE ---
+    
     approvato: {
         type: Boolean
-        // Lasciamo senza default per far funzionare i cibi vecchi come approvati
+    },
+
+    proposedBy: {
+        type: String,
+        required: true,
+        default: 'admin' 
     }
 });
 

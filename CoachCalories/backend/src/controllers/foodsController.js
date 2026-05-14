@@ -123,7 +123,8 @@ exports.createFood = async (req, res) => {
             quantita: Number(quantita) || 100,
             unita: unita || unitaMisura || 'g', 
             img: req.file ? req.file.filename : 'default.jpg',
-            approvato: true // L'admin lo crea già attivo ed utilizzabile
+            approvato: true, // L'admin lo crea già attivo ed utilizzabile
+            proposedBy: 'admin' // 🌟 Forziamo a 'admin' per tracciabilità
         });
 
         const savedFood = await newFood.save();
@@ -141,7 +142,7 @@ exports.approveFoodProposal = async (req, res) => {
 
         const approvedFood = await foodModel.findByIdAndUpdate(
             req.params.id,
-            { approvato: true }, // Metti 'approved: true' se sul DB è in inglese
+            { approvato: true }, 
             { new: true }
         );
 
@@ -155,10 +156,13 @@ exports.approveFoodProposal = async (req, res) => {
     }
 };
 
+// 🌟 STRUTTURA AGGIORNATA PER REGISTRARE IL PROPONENTE
 exports.createProposal = async (req, res) => {
     try {
         console.log("--- PROPOSTA UTENTE RICEVUTA ---");
-        const { nome, calorie, proteine, grassi, carboidrati, quantita, unita, unitaMisura } = req.body;
+        const { nome, calorie, proteine, grassi, carboidrati, quantita, unita, unitaMisura, proposedBy } = req.body;
+
+        const proponente = proposedBy || 'utente_anonimo@test.com';
 
         const newProposal = new foodModel({
             nome: nome,
@@ -169,11 +173,23 @@ exports.createProposal = async (req, res) => {
             quantita: Number(quantita) || 100,
             unita: unita || unitaMisura || 'g', 
             img: req.file ? req.file.filename : 'default.jpg',
-            approvato: false 
+            approvato: false,
+            proposedBy: proponente 
         });
 
         const savedProposal = await newProposal.save();
-        
+
+        // 🌟 AGGIUNGI QUESTO BLOCCO QUI SOTTO PER LE NOTIFICHE 🌟
+        if (req.io) {
+            req.io.to('admin_room').emit('nuova-proposta-admin', {
+                title: "Nuova Proposta",
+                message: `L'utente ${proponente} ha proposto: ${nome}`,
+                type: 'success'
+            });
+            console.log(`📢 Notifica push inviata agli admin per: ${nome}`);
+        }
+        // 🌟 --------------------------------------------- 🌟
+
         res.status(201).json({ 
             success: true, 
             message: "Proposta inviata con successo!", 
@@ -184,7 +200,6 @@ exports.createProposal = async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 };
-
 exports.getAdminProposals = async (req, res) => {
     try {
         console.log("--- RICHIESTA PROPOSTE DA PARTE DELL'ADMIN ---");
