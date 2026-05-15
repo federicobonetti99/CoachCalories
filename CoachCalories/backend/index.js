@@ -8,6 +8,7 @@ const { Server } = require('socket.io');
 const foodRouter = require('./src/routes/foodsRoutes'); 
 const authRouter = require('./src/routes/authRoutes');
 const diaryRoutes = require('./src/routes/diaryRoutes');
+const notificationRoutes = require('./src/routes/notificationRoutes'); 
 
 // 2. Database
 mongoose.connect('mongodb://127.0.0.1:27017/CoachCalories')
@@ -40,6 +41,7 @@ app.use((req, res, next) => {
 app.use('/foods', foodRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/diary', diaryRoutes);
+app.use('/api/notifications', notificationRoutes); 
 
 // 7. LOGICA WEBSOCKET
 io.on('connection', (socket) => {

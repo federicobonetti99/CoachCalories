@@ -50,48 +50,79 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { io } from 'socket.io-client';
+import axios from 'axios'; // 🌟 Fondamentale
 
 const emit = defineEmits(['navigate']);
 const notifications = ref([]);
 
+// Funzione per recuperare i dettagli dell'utente
+const getAuthDetails = () => {
+  return {
+    userGrade: localStorage.getItem("authGrade"),
+    userEmail: localStorage.getItem("userEmail")
+  };
+};
+
+// 🌟 CARICAMENTO DAL DATABASE
+const fetchAllNotifications = async () => {
+  const { userGrade, userEmail } = getAuthDetails();
+  const recipient = userGrade === 'admin' ? 'admin' : userEmail;
+
+  if (!recipient) return;
+
+  try {
+    // Nota: qui potresti voler creare una rotta nel backend che restituisce TUTTE le notifiche
+    // (sia lette che non) per il centro notifiche. Per ora usiamo quella esistente.
+    const res = await axios.get(`http://localhost:3000/api/notifications/${recipient}`);
+    
+    notifications.value = res.data.map(n => ({
+      title: n.title,
+      message: n.message,
+      type: n.type,
+      time: new Date(n.createdAt).toLocaleString([], { 
+        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
+      })
+    }));
+  } catch (err) {
+    console.error("❌ Errore fetch centro notifiche:", err);
+  }
+};
+
 onMounted(() => {
-  // 1. Recupera le notifiche vecchie salvate nel browser per non perderle al refresh
-  const savedNotes = localStorage.getItem('app_notifications');
-  if (savedNotes) {
-    notifications.value = JSON.parse(savedNotes);
+  // 1. Carica lo storico reale dal DB
+  fetchAllNotifications();
+
+  // 2. WebSocket per aggiornamenti "live" mentre guardi la pagina
+  const socket = io('http://localhost:3000');
+  const { userGrade } = getAuthDetails();
+
+  // Registrazione stanza socket
+  if (userGrade) {
+    socket.emit('registra-utente', { userGrade });
   }
 
-  // 2. Connessione WebSocket al backend Node.js
-  const socket = io('http://localhost:3000');
-  const userGrade = localStorage.getItem("authGrade");
-
-  // Funzione interna per aggiungere la notifica in cima all'elenco
   const addNotification = (title, message, type = 'success') => {
     notifications.value.unshift({
       title,
       message,
       type,
-      time: new Date().toLocaleTimeString()
+      time: new Date().toLocaleString([], { 
+        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
+      })
     });
-    // Salva lo storico nel localStorage
-    localStorage.setItem('app_notifications', JSON.stringify(notifications.value));
   };
 
-  // --- ASCOLTO EVENTI SERVER PUSH ---
-
-  // Evento 1: Promemoria Dietetico Serale (per tutti)
+  // --- ASCOLTO EVENTI SERVER ---
   socket.on('notifica-serale', (data) => {
     addNotification("Promemoria", data.message, 'info');
   });
 
-  // Evento 2: Notifica per l'Admin (Nuova proposta inserita da un utente)
   socket.on('nuova-proposta-admin', (data) => {
     if (userGrade === 'admin') {
       addNotification("Nuova Proposta", data.message, 'success');
     }
   });
 
-  // Evento 3: Notifica per l'Utente (Esito della proposta gestita dall'admin)
   socket.on('proposta-gestita-utente', (data) => {
     if (userGrade !== 'admin') {
       const title = data.status === 'approvata' ? "Approvata! ✅" : "Rifiutata ❌";
@@ -99,7 +130,6 @@ onMounted(() => {
     }
   });
 
-  // Disconnette il socket quando l'utente cambia pagina per liberare memoria
   onUnmounted(() => {
     socket.disconnect();
   });
