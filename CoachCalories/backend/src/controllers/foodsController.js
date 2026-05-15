@@ -84,7 +84,6 @@ exports.createFood = async (req, res) => {
     }
 };
 
-// 🌟 APPROVAZIONE PROPOSTA (Con notifica all'utente)
 exports.approveFoodProposal = async (req, res) => {
     try {
         const approvedFood = await foodModel.findByIdAndUpdate(
@@ -95,14 +94,17 @@ exports.approveFoodProposal = async (req, res) => {
 
         if (!approvedFood) return res.status(404).json({ success: false, message: "Alimento non trovato" });
 
-        // 🟢 Notifica persistente per l'utente che ha fatto la proposta
+        // 🟢 Notifica per l'utente (Salviamo anche qui l'ID se volessimo gestirlo live)
         if (approvedFood.proposedBy !== 'admin') {
-            await createInternalNotification(
-                approvedFood.proposedBy, // Destinatario (email utente)
+            const userNote = await createInternalNotification(
+                approvedFood.proposedBy,
                 "✅ Proposta Approvata",
                 `Il tuo alimento "${approvedFood.nome}" è stato approvato!`,
                 'success'
             );
+            
+            // Se avessi un sistema di socket anche per gli utenti:
+            // req.io.to(approvedFood.proposedBy).emit('esito-proposta', { id: userNote._id, ... });
         }
 
         res.status(200).json({ success: true, data: approvedFood });
@@ -111,7 +113,6 @@ exports.approveFoodProposal = async (req, res) => {
     }
 };
 
-// 🌟 CREAZIONE PROPOSTA (Con notifica all'admin)
 exports.createProposal = async (req, res) => {
     try {
         const { nome, calorie, proteine, grassi, carboidrati, quantita, unita, unitaMisura, proposedBy } = req.body;
@@ -132,17 +133,18 @@ exports.createProposal = async (req, res) => {
 
         const savedProposal = await newProposal.save();
 
-        // 🔵 1. Notifica Persistente nel Database (per l'admin)
-        await createInternalNotification(
+        // 🔵 1. Creiamo la notifica e ne catturiamo l'ID
+        const notification = await createInternalNotification(
             'admin', 
             '🍎 Nuova Proposta', 
             `L'utente ${proponente} ha proposto: ${nome}`, 
             'info'
         );
 
-        // 🔵 2. WebSocket Live
-        if (req.io) {
+        // 🔵 2. WebSocket Live: Passiamo l'ID al frontend
+        if (req.io && notification) {
             req.io.to('admin_room').emit('nuova-proposta-admin', {
+                id: notification._id, // 🌟 ECCO L'ID PER IL CLICK SINGOLO
                 title: "Nuova Proposta",
                 message: `L'utente ${proponente} ha proposto: ${nome}`,
                 type: 'success'
@@ -151,6 +153,7 @@ exports.createProposal = async (req, res) => {
 
         res.status(201).json({ success: true, message: "Proposta inviata!" });
     } catch (err) {
+        console.error("❌ Errore proposta:", err.message);
         res.status(500).json({ success: false, error: err.message });
     }
 };

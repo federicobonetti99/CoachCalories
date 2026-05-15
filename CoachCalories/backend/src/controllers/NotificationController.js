@@ -32,7 +32,28 @@ exports.markAsRead = async (req, res) => {
     }
 };
 
-// 3. FUNZIONE INTERNA (Senza req/res)
+// Segna una singola notifica come letta
+exports.markAsReadOne = async (req, res) => {
+    try {
+        const { id } = req.params; // Prende l'ID dall'URL
+        
+        const updated = await notificationModel.findByIdAndUpdate(
+            id, 
+            { read: true }, 
+            { new: true }
+        );
+
+        if (!updated) {
+            return res.status(404).json({ error: "Notifica non trovata nel DB" });
+        }
+
+        res.status(200).json({ success: true, message: "Notifica segnata come letta" });
+    } catch (err) {
+        console.error("Errore markAsReadOne:", err);
+        res.status(500).json({ error: "Errore interno del server" });
+    }
+};
+
 exports.createInternalNotification = async (recipient, title, message, type = 'info') => {
     try {
         const newNote = new notificationModel({
@@ -41,11 +62,15 @@ exports.createInternalNotification = async (recipient, title, message, type = 'i
             message,
             type
         });
-        await newNote.save();
-        console.log("✅ Notifica salvata nel DB per:", recipient);
-        return true;
+        
+        // Salviamo e otteniamo l'oggetto completo dal database
+        const savedNote = await newNote.save();
+        
+        console.log(`✅ Notifica creata nel DB (ID: ${savedNote._id}) per: ${recipient}`);
+        
+        return savedNote; // 🌟 RESTITUISCE TUTTO IL DOCUMENTO
     } catch (err) {
         console.error("❌ Errore creazione notifica DB:", err);
-        return false;
+        return null; // Restituiamo null in caso di errore
     }
 };

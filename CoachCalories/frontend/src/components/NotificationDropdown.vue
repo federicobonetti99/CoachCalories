@@ -5,7 +5,6 @@
       type="button" 
       data-bs-toggle="dropdown" 
       aria-expanded="false"
-      @click="unreadCount = 0"
       style="font-size: 1.5rem; line-height: 1;"
     >
       📬
@@ -32,8 +31,10 @@
 
       <li 
         v-for="(note, index) in liveNotifications" 
-        :key="index" 
+        :key="note.id" 
+        @click="markAsRead(note.id, index)"
         class="p-3 border-bottom border-secondary bg-hover animate-slide-down bg-black text-start"
+        style="cursor: pointer;"
       >
         <div class="d-flex flex-column w-100">
           <div class="d-flex justify-content-between align-items-center mb-2 w-100">
@@ -69,17 +70,16 @@
     </ul>
   </div>
 </template>
+
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { io } from 'socket.io-client';
-import axios from 'axios'; // 🌟 Importa axios
+import axios from 'axios';
 
 const emit = defineEmits(['view-all']);
-
 const liveNotifications = ref([]);
 const unreadCount = ref(0);
 
-// Funzione interna per recuperare i dati dal localStorage
 const getAuthDetails = () => {
   return {
     userGrade: localStorage.getItem("authGrade"),
@@ -91,120 +91,75 @@ const goToCenter = () => {
   emit('view-all');
 };
 
-// 🌟 NUOVA FUNZIONE: Carica notifiche salvate dal DB
 const fetchNotifications = async () => {
   const { userGrade, userEmail } = getAuthDetails();
   const recipient = userGrade === 'admin' ? 'admin' : userEmail;
-
   if (!recipient) return;
 
   try {
     const res = await axios.get(`http://localhost:3000/api/notifications/${recipient}`);
-    // Trasformiamo i dati del DB nel formato usato dal tuo dropdown
-    const history = res.data.map(n => ({
+    liveNotifications.value = res.data.map(n => ({
+      id: n._id, // 🌟 Importante: salviamo l'ID del DB
       title: n.title,
       message: n.message,
       type: n.type,
-      // Trasformiamo la data ISO in un orario leggibile
       time: new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }));
-
-    liveNotifications.value = history;
-    unreadCount.value = history.length;
+    unreadCount.value = liveNotifications.value.length;
   } catch (err) {
-    console.error("❌ Errore caricamento notifiche storiche:", err);
+    console.error("❌ Errore caricamento notifiche:", err);
   }
 };
 
-// 🌟 NUOVA FUNZIONE: Segna come lette quando apri il dropdown
-const handleOpenDropdown = async () => {
-  const { userGrade, userEmail } = getAuthDetails();
-  const recipient = userGrade === 'admin' ? 'admin' : userEmail;
-  
-  if (unreadCount.value === 0) return;
+// 🌟 FUNZIONE AL CLICK: Segna la singola notifica come letta
+const markAsRead = async (id, index) => {
+  if (!id) {
+    // Se è una notifica solo live e non ha ancora ID (raro), la togliamo solo dalla lista
+    liveNotifications.value.splice(index, 1);
+    unreadCount.value--;
+    return;
+  }
 
   try {
-    await axios.put(`http://localhost:3000/api/notifications/read/${recipient}`);
-    unreadCount.value = 0; // Azzeriamo il pallino rosso nel frontend
+    await axios.put(`http://localhost:3000/api/notifications/read-one/${id}`);
+    
+    // La rimuoviamo dalla vista locale
+    liveNotifications.value.splice(index, 1);
+    unreadCount.value--;
+    
+    console.log(`✅ Notifica ${id} segnata come letta`);
   } catch (err) {
-    console.error("❌ Errore reset notifiche:", err);
+    console.error("❌ Errore nel segnare la notifica come letta:", err);
   }
 };
 
 onMounted(() => {
-  // 1. Carichiamo subito le notifiche dal database 🚀
   fetchNotifications();
-
-  // 2. Connessione WebSocket (Logica esistente)
   const socket = io('http://localhost:3000');
   
   const registraSuSocket = () => {
     const { userGrade } = getAuthDetails();
-    if (userGrade) {
-      socket.emit('registra-utente', { userGrade });
-    }
+    if (userGrade) socket.emit('registra-utente', { userGrade });
   };
 
   registraSuSocket();
 
-  const addLiveNote = (title, message, type = 'success') => {
-    liveNotifications.value.unshift({
-      title,
-      message,
-      type,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    });
-    unreadCount.value++;
-  };
-
-  // Socket listeners... (mantieni i tuoi socket.on esistenti)
+  // Ricezione WebSocket: nota che per le notifiche live l'ID arriverà al prossimo refresh 
+  // o potresti passarlo direttamente dal backend nel socket.emit
   socket.on('nuova-proposta-admin', (data) => {
     const { userGrade } = getAuthDetails();
     if (userGrade === 'admin') {
-      addLiveNote("Nuova Proposta", data.message, 'success');
+      liveNotifications.value.unshift({
+        id: data.id, // Assicurati che il backend lo mandi!
+        title: "Nuova Proposta",
+        message: data.message,
+        type: 'success',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+      unreadCount.value++;
     }
   });
 
-  // ... altri socket.on ...
-
-  onUnmounted(() => {
-    socket.disconnect();
-  });
+  onUnmounted(() => socket.disconnect());
 });
 </script>
-
-<style scoped>
-/* Effetto visivo quando passi il mouse sopra una riga di notifica */
-.bg-hover:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-/* Stile per i bordi e l'arrotondamento del menu nero */
-.dropdown-menu {
-  border-radius: 12px;
-  border: 1px solid #4f4f4f !important;
-}
-
-/* Animazione fluida di rimbalzo della casetta al passaggio del mouse */
-.mailbox-btn {
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.mailbox-btn:hover {
-  transform: scale(1.2);
-}
-
-/* Link di fondo verde che si sottolinea all'hover */
-.link-compile:hover {
-  color: #198754 !important;
-  text-decoration: underline !important;
-}
-
-/* Animazione per far scivolare i nuovi messaggi dall'alto */
-.animate-slide-down {
-  animation: slideDown 0.2s ease-out;
-}
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-</style>
