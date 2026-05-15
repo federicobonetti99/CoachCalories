@@ -91,6 +91,22 @@ const goToCenter = () => {
   emit('view-all');
 };
 
+// 🌟 FUNZIONE DI SINCRONIZZAZIONE (Il trucco per barare)
+// Questa funzione viene eseguita quando il NotificationCenter lancia l'urlo
+const handleGlobalSync = (event) => {
+  const idLetto = event.detail.id;
+  
+  // Cerchiamo se quella notifica è presente nel dropdown
+  const index = liveNotifications.value.findIndex(n => n.id === idLetto);
+  
+  if (index !== -1) {
+    // Se c'è, la rimuoviamo (perché nel dropdown vogliamo solo le non lette)
+    liveNotifications.value.splice(index, 1);
+    unreadCount.value = liveNotifications.value.length;
+    console.log(`🔄 Dropdown sincronizzato: rimossa notifica ${idLetto}`);
+  }
+};
+
 const fetchNotifications = async () => {
   const { userGrade, userEmail } = getAuthDetails();
   const recipient = userGrade === 'admin' ? 'admin' : userEmail;
@@ -99,7 +115,7 @@ const fetchNotifications = async () => {
   try {
     const res = await axios.get(`http://localhost:3000/api/notifications/${recipient}`);
     liveNotifications.value = res.data.map(n => ({
-      id: n._id, // 🌟 Importante: salviamo l'ID del DB
+      id: n._id,
       title: n.title,
       message: n.message,
       type: n.type,
@@ -111,10 +127,8 @@ const fetchNotifications = async () => {
   }
 };
 
-// 🌟 FUNZIONE AL CLICK: Segna la singola notifica come letta
 const markAsRead = async (id, index) => {
   if (!id) {
-    // Se è una notifica solo live e non ha ancora ID (raro), la togliamo solo dalla lista
     liveNotifications.value.splice(index, 1);
     unreadCount.value--;
     return;
@@ -122,12 +136,11 @@ const markAsRead = async (id, index) => {
 
   try {
     await axios.put(`http://localhost:3000/api/notifications/read-one/${id}`);
-    
-    // La rimuoviamo dalla vista locale
     liveNotifications.value.splice(index, 1);
     unreadCount.value--;
     
-    console.log(`✅ Notifica ${id} segnata come letta`);
+    // (Opzionale) Se clicchi dal dropdown, potresti voler avvisare il centro notifiche
+    // ma di solito il centro notifiche si aggiorna al refresh o lo tieni così.
   } catch (err) {
     console.error("❌ Errore nel segnare la notifica come letta:", err);
   }
@@ -135,6 +148,10 @@ const markAsRead = async (id, index) => {
 
 onMounted(() => {
   fetchNotifications();
+  
+  // 🌟 ASCOLTO L'EVENTO GLOBALE
+  window.addEventListener('notifica-letta-global', handleGlobalSync);
+
   const socket = io('http://localhost:3000');
   
   const registraSuSocket = () => {
@@ -144,13 +161,11 @@ onMounted(() => {
 
   registraSuSocket();
 
-  // Ricezione WebSocket: nota che per le notifiche live l'ID arriverà al prossimo refresh 
-  // o potresti passarlo direttamente dal backend nel socket.emit
   socket.on('nuova-proposta-admin', (data) => {
     const { userGrade } = getAuthDetails();
     if (userGrade === 'admin') {
       liveNotifications.value.unshift({
-        id: data.id, // Assicurati che il backend lo mandi!
+        id: data.id, 
         title: "Nuova Proposta",
         message: data.message,
         type: 'success',
@@ -160,6 +175,10 @@ onMounted(() => {
     }
   });
 
-  onUnmounted(() => socket.disconnect());
+  onUnmounted(() => {
+    socket.disconnect();
+    // 🌟 PULIZIA: smetto di ascoltare quando il componente viene distrutto
+    window.removeEventListener('notifica-letta-global', handleGlobalSync);
+  });
 });
 </script>

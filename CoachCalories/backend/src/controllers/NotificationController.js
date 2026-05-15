@@ -17,6 +17,21 @@ exports.getNotifications = async (req, res) => {
     }
 };
 
+// Recupera TUTTE le notifiche (lette e non lette) per la pagina Centro Notifiche
+exports.getAllNotifications = async (req, res) => {
+    try {
+        const { recipient } = req.params;
+        const notifications = await notificationModel.find({ 
+            recipient: recipient 
+        }).sort({ createdAt: -1 }); // Sempre le più recenti in alto
+
+        res.status(200).json(notifications);
+    } catch (err) {
+        console.error("Errore recupero storico notifiche:", err);
+        res.status(500).json({ error: "Errore nel recupero dello storico" });
+    }
+};
+
 // 2. SEGNA COME LETTE (PUT)
 exports.markAsRead = async (req, res) => {
     try {
@@ -72,5 +87,19 @@ exports.createInternalNotification = async (recipient, title, message, type = 'i
     } catch (err) {
         console.error("❌ Errore creazione notifica DB:", err);
         return null; // Restituiamo null in caso di errore
+    }
+};
+
+// ELIMINA DEFINITIVAMENTE UNA NOTIFICA
+exports.deleteNotification = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deleted = await notificationModel.findByIdAndDelete(id);
+        
+        if (!deleted) return res.status(404).json({ error: "Notifica non trovata" });
+        
+        res.status(200).json({ success: true, message: "Notifica eliminata dal DB" });
+    } catch (err) {
+        res.status(500).json({ error: "Errore durante l'eliminazione" });
     }
 };

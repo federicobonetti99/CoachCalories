@@ -21,24 +21,52 @@
       <div v-else class="list-group list-group-flush">
         <div 
           v-for="(note, index) in notifications" 
-          :key="index" 
-          class="list-group-item bg-transparent text-white border-secondary py-3 px-0 d-flex justify-content-between align-items-start animate-fade-in"
+          :key="note.id || index" 
+          @click="handleNotificationClick(note)"
+          class="list-group-item bg-transparent text-white border-secondary py-3 px-3 d-flex justify-content-between align-items-center animate-fade-in notification-row"
+          :class="{ 'is-read': note.read, 'is-unread': !note.read }"
         >
           <div class="me-auto">
             <div class="d-flex align-items-center mb-1">
               <span 
-                class="badge me-2" 
-                :class="{
-                  'bg-success': note.type === 'success',
-                  'bg-danger': note.type === 'error',
-                  'bg-info': note.type === 'info'
+                class="badge me-2 d-flex align-items-center" 
+                :class="note.read ? 'bg-secondary opacity-50' : {
+                  'bg-primary': note.title === 'Nuova Proposta',
+                  'bg-success': note.type === 'success' && note.title !== 'Nuova Proposta',
+                  'bg-info': note.type === 'info',
+                  'bg-danger': note.type === 'error'
                 }"
               >
+                <span v-if="note.title === 'Nuova Proposta'" class="me-1">🍎</span>
+                <span v-else-if="note.type === 'success'" class="me-1">✅</span>
+                <span v-else-if="note.type === 'info'" class="me-1">ℹ️</span>
+                <span v-else-if="note.type === 'error'" class="me-1">⚠️</span>
+                
                 {{ note.title }}
               </span>
-              <small class="text-muted">{{ note.time }}</small>
+
+              <small :class="note.read ? 'text-muted fw-normal' : 'text-muted fw-bold'">
+                {{ note.time }}
+              </small>
+              
+              <span v-if="!note.read" class="badge rounded-pill bg-warning text-dark ms-2 shadow-sm" style="font-size: 0.65rem;">
+                NUOVA
+              </span>
             </div>
-            <p class="mb-0 text-white-50 fs-5">{{ note.message }}</p>
+            
+            <p class="mb-0 fs-5 message-text" :class="note.read ? 'text-white-50 fw-normal' : 'text-white fw-bold'">
+              {{ note.message }}
+            </p>
+          </div>
+
+          <div class="ms-3">
+            <button 
+              class="btn btn-outline-danger btn-sm border-0 rounded-circle p-2 shadow-none trash-btn" 
+              @click.stop="deleteNotification(note.id, index)"
+              title="Elimina definitivamente"
+            >
+              <span style="font-size: 1.2rem;">🗑️</span>
+            </button>
           </div>
         </div>
       </div>
@@ -50,12 +78,11 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { io } from 'socket.io-client';
-import axios from 'axios'; // 🌟 Fondamentale
+import axios from 'axios';
 
 const emit = defineEmits(['navigate']);
 const notifications = ref([]);
 
-// Funzione per recuperare i dettagli dell'utente
 const getAuthDetails = () => {
   return {
     userGrade: localStorage.getItem("authGrade"),
@@ -63,86 +90,118 @@ const getAuthDetails = () => {
   };
 };
 
-// 🌟 CARICAMENTO DAL DATABASE
 const fetchAllNotifications = async () => {
   const { userGrade, userEmail } = getAuthDetails();
   const recipient = userGrade === 'admin' ? 'admin' : userEmail;
-
   if (!recipient) return;
 
   try {
-    // Nota: qui potresti voler creare una rotta nel backend che restituisce TUTTE le notifiche
-    // (sia lette che non) per il centro notifiche. Per ora usiamo quella esistente.
-    const res = await axios.get(`http://localhost:3000/api/notifications/${recipient}`);
-    
+    const res = await axios.get(`http://localhost:3000/api/notifications/all/${recipient}`);
     notifications.value = res.data.map(n => ({
+      id: n._id,
       title: n.title,
       message: n.message,
       type: n.type,
+      read: n.read, 
       time: new Date(n.createdAt).toLocaleString([], { 
-        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
+        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
       })
     }));
   } catch (err) {
-    console.error("❌ Errore fetch centro notifiche:", err);
+    console.error("❌ Errore fetch storico:", err);
+  }
+};
+
+const deleteNotification = async (id, index) => {
+  if (!confirm("Vuoi eliminare definitivamente questa notifica?")) return;
+  try {
+    await axios.delete(`http://localhost:3000/api/notifications/${id}`);
+    notifications.value.splice(index, 1);
+  } catch (err) {
+    console.error("❌ Errore eliminazione:", err);
+  }
+};
+
+const handleNotificationClick = async (note) => {
+  if (note.read) return;
+
+  try {
+    await axios.put(`http://localhost:3000/api/notifications/read-one/${note.id}`);
+    
+    // Aggiorna la vista locale (quello che abbiamo già fatto)
+    const index = notifications.value.findIndex(n => n.id === note.id);
+    if (index !== -1) {
+      notifications.value[index] = { ...notifications.value[index], read: true };
+    }
+
+    // 🌟 IL TRUCCO: Lancia un evento globale nel browser
+    const event = new CustomEvent('notifica-letta-global', { detail: { id: note.id } });
+    window.dispatchEvent(event);
+
+    console.log("✅ Evento di sincronizzazione lanciato");
+  } catch (err) {
+    console.error(err);
   }
 };
 
 onMounted(() => {
-  // 1. Carica lo storico reale dal DB
   fetchAllNotifications();
-
-  // 2. WebSocket per aggiornamenti "live" mentre guardi la pagina
   const socket = io('http://localhost:3000');
   const { userGrade } = getAuthDetails();
 
-  // Registrazione stanza socket
-  if (userGrade) {
-    socket.emit('registra-utente', { userGrade });
-  }
-
-  const addNotification = (title, message, type = 'success') => {
-    notifications.value.unshift({
-      title,
-      message,
-      type,
-      time: new Date().toLocaleString([], { 
-        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
-      })
-    });
-  };
-
-  // --- ASCOLTO EVENTI SERVER ---
-  socket.on('notifica-serale', (data) => {
-    addNotification("Promemoria", data.message, 'info');
-  });
+  if (userGrade) socket.emit('registra-utente', { userGrade });
 
   socket.on('nuova-proposta-admin', (data) => {
     if (userGrade === 'admin') {
-      addNotification("Nuova Proposta", data.message, 'success');
+      notifications.value.unshift({
+        id: data.id, 
+        title: "Nuova Proposta",
+        message: data.message,
+        type: 'success',
+        read: false,
+        time: new Date().toLocaleString([], { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+      });
     }
   });
 
-  socket.on('proposta-gestita-utente', (data) => {
-    if (userGrade !== 'admin') {
-      const title = data.status === 'approvata' ? "Approvata! ✅" : "Rifiutata ❌";
-      addNotification(title, data.message, data.status === 'approvata' ? 'success' : 'error');
-    }
-  });
-
-  onUnmounted(() => {
-    socket.disconnect();
-  });
+  onUnmounted(() => socket.disconnect());
 });
 </script>
 
 <style scoped>
-/* Animazione fluida quando appare una nuova notifica live */
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+.list-group-item {
+  transition: all 0.3s ease-in-out;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+
+.is-unread {
+  border-left: 4px solid #198754 !important;
+  padding-left: 15px !important;
+  cursor: pointer;
+}
+
+.is-read {
+  opacity: 0.5;
+  border-left: 4px solid transparent !important;
+  cursor: default;
+}
+
+.list-group-item:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: white;
+  transform: scale(1.1);
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-in {
+  animation: slideIn 0.4s ease-out forwards;
 }
 </style>
