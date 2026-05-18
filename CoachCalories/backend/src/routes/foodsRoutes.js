@@ -58,6 +58,9 @@ router.get('/admin/proposals-list', controller.getAdminProposals);
 // 🚀 NUOVA ROTTA ISOLATA: Approva un cibo specifico senza passare da updateFood e senza Multer
 router.patch('/:id/approve', controller.approveFoodProposal);
 
+// 🌟 NUOVA ROTTA ISOLATA: Rifiuta e scarta una proposta utente inviando la notifica live
+router.delete('/:id/reject', controller.rejectFoodProposal);
+
 // Rotte per query specifiche
 router.route('/top-calorie').get(controller.findTopCalorieFood);
 router.route('/search').get(controller.findFoodByQuery);

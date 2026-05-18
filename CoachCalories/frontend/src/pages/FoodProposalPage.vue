@@ -87,7 +87,6 @@ import axios from 'axios';
 
 const emit = defineEmits(['navigate']);
 
-// 1. Stato iniziale per il reset rapido
 const initialState = {
   nome: '',
   quantita: 100,
@@ -108,12 +107,10 @@ const selezionaFile = (event) => {
   fileSelezionato.value = event.target.files[0];
 };
 
-// 2. Funzione per svuotare tutto
 const resetForm = () => {
   Object.assign(dummyData, initialState);
   fileSelezionato.value = null;
   
-  // Puliamo l'input file nel DOM
   const fileInput = document.querySelector('input[type="file"]');
   if (fileInput) fileInput.value = "";
 };
@@ -124,10 +121,20 @@ const inviaProposta = async () => {
     return;
   }
 
+  // 🌟 VERIFICA DI SICUREZZA DIRETTA
+  // Recuperiamo l'email reale dal localStorage senza dare un fallback "misterioso" che rompe i socket
+  const userEmail = localStorage.getItem('userEmail');
+  const username = localStorage.getItem('username') || ''; 
+
+  // Se l'email non esiste, blocchiamo l'invio e avvisiamo lo sviluppatore/utente
+  if (!userEmail) {
+    errore.value = "Errore d'identità: Email utente non trovata nel browser. Prova a rifare il Login.";
+    console.error("❌ Errore: 'userEmail' è null o undefined nel localStorage. Verifica la chiave usata nel Login.");
+    return;
+  }
+
   risposta.value = 'Invio della proposta in corso...';
   errore.value = '';
-
-  const userEmail = localStorage.getItem('userEmail') || 'utente_misterioso@test.com';
 
   const fd = new FormData();
   fd.append('nome', dummyData.nome);
@@ -137,7 +144,8 @@ const inviaProposta = async () => {
   fd.append('carboidrati', dummyData.carboidrati || 0);
   fd.append('quantita', dummyData.quantita || 100);
   fd.append('unita', dummyData.unitaMisura || 'g');
-  fd.append('proposedBy', userEmail);
+  fd.append('proposedBy', userEmail); // Mandiamo l'email sicura trovata
+  fd.append('username', username);
   
   if (fileSelezionato.value) {
     fd.append('image', fileSelezionato.value);
@@ -148,9 +156,7 @@ const inviaProposta = async () => {
         headers: { 'Content-Type': 'multipart/form-data' }
     });
     
-    risposta.value = "✅ " + res.data.message;
-
-    // 3. ✨ Svuotiamo il form dopo il successo
+    risposta.value = res.data.message;
     resetForm();
     
     setTimeout(() => {

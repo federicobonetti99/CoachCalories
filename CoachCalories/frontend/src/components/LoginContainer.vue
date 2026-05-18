@@ -23,6 +23,7 @@ if (response.data.success) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('authGrade', response.data.authenticationGrade);
       localStorage.setItem('username', response.data.username);
+      localStorage.setItem('userEmail', response.data.email);
 
       if (response.data.weight !== undefined && response.data.weight !== null) {
         localStorage.setItem('weight', response.data.weight);

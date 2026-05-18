@@ -48,9 +48,19 @@ io.on('connection', (socket) => {
     console.log(`🔌 Connesso: ${socket.id}`);
 
     socket.on('registra-utente', (data) => {
-        if (data && data.userGrade === 'admin') {
+        if (!data) return;
+
+        // 1. Se è admin, entra nella stanza degli admin
+        if (data.userGrade === 'admin') {
             socket.join('admin_room');
             console.log(`👑 Admin ${socket.id} in admin_room`);
+        }
+
+        // 2. 🌟 SE C'È L'EMAIL, creiamo la stanza privata per l'utente
+        // Questo permette al backend di fare req.io.to(email).emit(...)
+        if (data.userEmail) {
+            socket.join(data.userEmail);
+            console.log(`👤 Utente ${socket.id} inserito nella stanza privata: ${data.userEmail}`);
         }
     });
 

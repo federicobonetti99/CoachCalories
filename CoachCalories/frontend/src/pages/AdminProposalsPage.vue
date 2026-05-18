@@ -99,6 +99,8 @@ const loading = ref(true);
 const messaggio = ref('');
 const errore = ref('');
 
+const emit = defineEmits(['navigate']);
+
 const fetchProposals = async () => {
   loading.value = true;
   errore.value = '';
@@ -107,8 +109,6 @@ const fetchProposals = async () => {
     const soloProposte = response.data;
 
     soloProposte.forEach((food) => {
-      // 🌟 MODIFICA QUESTA RIGA: Togliamo "http://localhost:3000" 
-      // Usiamo il percorso relativo partendo dalla cartella 'public' o dagli asset statici del tuo frontend
       food.img = food.img ? `/img/foods/${food.img}` : NOT_FOUND_IMAGE;
     });
 
@@ -125,11 +125,11 @@ const approvaProposta = async (id) => {
   messaggio.value = '';
   errore.value = '';
   try {
-    // 🌟 Puntiamo alla nuova rotta dedicata usando .patch
+    // 🟢 Questa andava già bene!
     await axios.patch(`http://localhost:3000/foods/${id}/approve`);
     
     messaggio.value = "Alimento approvato ed inserito ufficialmente nel catalogo!";
-    await fetchProposals(); // Ricarica la lista
+    await fetchProposals(); 
   } catch (err) {
     console.error("Errore approvazione:", err);
     errore.value = "Errore durante l'approvazione del cibo.";
@@ -142,7 +142,9 @@ const rifiutaProposta = async (id) => {
   messaggio.value = '';
   errore.value = '';
   try {
-    await axios.delete(`http://localhost:3000/foods/${id}`);
+    // 🌟 L'UNICA MODIFICA È QUI: Aggiunto /reject alla fine dell'URL
+    await axios.delete(`http://localhost:3000/foods/${id}/reject`);
+    
     messaggio.value = "Proposta scartata ed eliminata con successo.";
     await fetchProposals();
   } catch (err) {

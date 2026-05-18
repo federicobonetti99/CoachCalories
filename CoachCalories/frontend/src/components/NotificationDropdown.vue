@@ -39,14 +39,19 @@
         <div class="d-flex flex-column w-100">
           <div class="d-flex justify-content-between align-items-center mb-2 w-100">
             <span 
-              class="badge fw-bold" 
+              class="badge fw-bold d-flex align-items-center" 
               :class="{
-                'bg-success text-white': note.type === 'success',
-                'bg-danger text-white': note.type === 'error',
+                'bg-primary text-white': note.title === 'Nuova Proposta' || note.title === 'Proposta Approvata',
+                'bg-success text-white': note.type === 'success' && note.title !== 'Nuova Proposta' && note.title !== 'Proposta Approvata',
+                'bg-danger text-white': note.type === 'error' || note.title === 'Proposta Rifiutata',
                 'bg-info text-dark': note.type === 'info'
               }" 
               style="font-size: 0.75rem;"
             >
+              <span v-if="note.title === 'Nuova Proposta'" class="me-1">🍎</span>
+              <span v-else-if="note.title === 'Proposta Approvata'" class="me-1">✅</span>
+              <span v-else-if="note.title === 'Proposta Rifiutata'" class="me-1">❌</span>
+              
               {{ note.title }}
             </span>
             <small class="text-white fw-bold opacity-75" style="font-size: 0.75rem;">{{ note.time }}</small>
@@ -91,16 +96,12 @@ const goToCenter = () => {
   emit('view-all');
 };
 
-// 🌟 FUNZIONE DI SINCRONIZZAZIONE (Il trucco per barare)
-// Questa funzione viene eseguita quando il NotificationCenter lancia l'urlo
+// 🌟 FUNZIONE DI SINCRONIZZAZIONE
 const handleGlobalSync = (event) => {
   const idLetto = event.detail.id;
-  
-  // Cerchiamo se quella notifica è presente nel dropdown
   const index = liveNotifications.value.findIndex(n => n.id === idLetto);
   
   if (index !== -1) {
-    // Se c'è, la rimuoviamo (perché nel dropdown vogliamo solo le non lette)
     liveNotifications.value.splice(index, 1);
     unreadCount.value = liveNotifications.value.length;
     console.log(`🔄 Dropdown sincronizzato: rimossa notifica ${idLetto}`);
@@ -138,9 +139,6 @@ const markAsRead = async (id, index) => {
     await axios.put(`http://localhost:3000/api/notifications/read-one/${id}`);
     liveNotifications.value.splice(index, 1);
     unreadCount.value--;
-    
-    // (Opzionale) Se clicchi dal dropdown, potresti voler avvisare il centro notifiche
-    // ma di solito il centro notifiche si aggiorna al refresh o lo tieni così.
   } catch (err) {
     console.error("❌ Errore nel segnare la notifica come letta:", err);
   }
@@ -149,18 +147,22 @@ const markAsRead = async (id, index) => {
 onMounted(() => {
   fetchNotifications();
   
-  // 🌟 ASCOLTO L'EVENTO GLOBALE
   window.addEventListener('notifica-letta-global', handleGlobalSync);
 
   const socket = io('http://localhost:3000');
   
   const registraSuSocket = () => {
-    const { userGrade } = getAuthDetails();
-    if (userGrade) socket.emit('registra-utente', { userGrade });
+    // 🌟 RECUPERIAMO SIA IL GRADO CHE L'EMAIL
+    const { userGrade, userEmail } = getAuthDetails();
+    // 🌟 INVIAMO ENTRAMBI AL SERVER PER ABILITARE LE STANZE PRIVATE
+    if (userGrade || userEmail) {
+        socket.emit('registra-utente', { userGrade, userEmail });
+    }
   };
 
   registraSuSocket();
 
+  // 🔔 LISTENER 1: Per l'Admin (Nuova Proposta)
   socket.on('nuova-proposta-admin', (data) => {
     const { userGrade } = getAuthDetails();
     if (userGrade === 'admin') {
@@ -175,9 +177,20 @@ onMounted(() => {
     }
   });
 
+  // 🔔 LISTENER 2: 🌟 NUOVO PER L'UTENTE (Esito Approvazione/Rifiuto)
+  socket.on('esito-proposta', (data) => {
+    liveNotifications.value.unshift({
+      id: data.id,
+      title: data.title, // "Proposta Approvata" o "Proposta Rifiutata"
+      message: data.message,
+      type: data.type, // 'success' o 'error'
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    });
+    unreadCount.value++;
+  });
+
   onUnmounted(() => {
     socket.disconnect();
-    // 🌟 PULIZIA: smetto di ascoltare quando il componente viene distrutto
     window.removeEventListener('notifica-letta-global', handleGlobalSync);
   });
 });
