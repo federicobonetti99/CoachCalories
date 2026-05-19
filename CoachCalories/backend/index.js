@@ -3,12 +3,14 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
+const cron = require('node-cron');
 
 // 1. Import Router
 const foodRouter = require('./src/routes/foodsRoutes'); 
 const authRouter = require('./src/routes/authRoutes');
 const diaryRoutes = require('./src/routes/diaryRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes'); 
+// 🌟 RIMOZIONE: La riga di notificationController in cima è stata tolta per evitare il crash!
 
 // 2. Database
 mongoose.connect('mongodb://127.0.0.1:27017/CoachCalories')
@@ -40,7 +42,7 @@ app.use((req, res, next) => {
 // 6. ROTTE (Sotto il ponte, così possono usare req.io)
 app.use('/foods', foodRouter);
 app.use('/api/auth', authRouter);
-app.use('/api/diary', diaryRoutes);
+app.use('/api/diary', diaryRoutes); // 👈 Qui viene registrato il diario e Mongoose impara lo schema "Diary"
 app.use('/api/notifications', notificationRoutes); 
 
 // 7. LOGICA WEBSOCKET
@@ -57,7 +59,6 @@ io.on('connection', (socket) => {
         }
 
         // 2. 🌟 SE C'È L'EMAIL, creiamo la stanza privata per l'utente
-        // Questo permette al backend di fare req.io.to(email).emit(...)
         if (data.userEmail) {
             socket.join(data.userEmail);
             console.log(`👤 Utente ${socket.id} inserito nella stanza privata: ${data.userEmail}`);
@@ -73,3 +74,18 @@ io.on('connection', (socket) => {
 server.listen(3000, () => {
     console.log('🚀 Server unificato attivo sulla porta 3000');
 });
+
+// 🌟 SPOSTATO QUI: Ora che Mongoose ha già letto tutte le rotte e i modelli,
+// possiamo importare il controller in totale sicurezza senza MAI più ricevere il MissingSchemaError!
+const notificationController = require('./src/controllers/notificationController'); 
+
+// Configurazione del Cron Job (Attualmente impostato al minuto per i tuoi test)
+cron.schedule('* * * * *', () => {
+    // Passiamo l'istanza globale di 'io' in modo che possa fare gli .emit live
+    notificationController.sendDailyReminder(io);
+}, {
+    scheduled: true,
+    timezone: "Europe/Rome" // 🌟 IMPORTANTE: Forza il fuso orario italiano
+});
+
+console.log("⏰ Scheduler del promemoria giornaliero (ogni minuto per test) caricato con successo.");
