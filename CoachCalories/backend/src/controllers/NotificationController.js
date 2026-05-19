@@ -3,12 +3,21 @@ const mongoose = require('mongoose');
 const { notificationModel } = require('../models/notificationModel');
 const { userModel } = require('../models/userModel');
 
-// 1. RECUPERA NOTIFICHE (GET)
+// 1. RECUPERA NOTIFICHE NON LETTE (GET) - Aggiornato con filtri flessibili per l'Admin
 exports.getNotifications = async (req, res) => {
     try {
         const { recipient } = req.params;
+
+        // Creiamo un array di possibili destinatari
+        let targetRecipients = [recipient];
+
+        // Se chi interroga è l'admin, o se viene cercata l'email dell'admin, uniamo i target
+        if (recipient === 'admin' || recipient === 'federico@coach.it' || recipient === 'Federico') {
+            targetRecipients = ['admin', 'federico@coach.it', 'Federico'];
+        }
+
         const notifications = await notificationModel.find({ 
-            recipient: recipient, 
+            recipient: { $in: targetRecipients }, 
             read: false 
         }).sort({ createdAt: -1 });
 
@@ -19,13 +28,21 @@ exports.getNotifications = async (req, res) => {
     }
 };
 
-// Recupera TUTTE le notifiche (lette e non lette) per la pagina Centro Notifiche
 exports.getAllNotifications = async (req, res) => {
     try {
-        const { recipient } = req.params;
+        const { recipient } = req.params; 
+
+        // Creiamo la lista dei target. Se l'utente è l'admin, deve vedere TUTTO ciò che è indirizzato a lui
+        let targetRecipients = [recipient];
+
+        if (recipient === 'admin' || recipient === 'federico@coach.it' || recipient === 'Federico') {
+            targetRecipients = ['admin', 'federico@coach.it', 'Federico'];
+        }
+
+        // L'operatore $in di Mongoose prende qualsiasi notifica che abbia come recipient uno dei valori nell'array
         const notifications = await notificationModel.find({ 
-            recipient: recipient 
-        }).sort({ createdAt: -1 }); // Sempre le più recenti in alto
+            recipient: { $in: targetRecipients }
+        }).sort({ createdAt: -1 }); 
 
         res.status(200).json(notifications);
     } catch (err) {
