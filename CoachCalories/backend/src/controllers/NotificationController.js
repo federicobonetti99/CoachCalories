@@ -232,3 +232,23 @@ exports.sendDailyReminder = async (io) => {
         console.error("❌ [CRON] Errore nel promemoria:", err.message);
     }
 };
+
+exports.deleteAllNotifications = async (req, res) => {
+    try {
+        const { recipient } = req.params;
+        const targets = getTargetRecipients(recipient);
+
+        // Cancelliamo tutte le notifiche che corrispondono ai target dell'utente
+        await notificationModel.deleteMany({ recipient: { $in: targets } });
+
+        // Fischio globale via socket per svuotare i componenti live sul frontend
+        if (req.io) {
+            req.io.to('admin_room').emit('notifiche-svuotate-broadcast');
+        }
+
+        res.status(200).json({ success: true, message: "Tutte le notifiche sono stati eliminate dal DB" });
+    } catch (err) {
+        console.error("Errore svuotamento notifiche:", err);
+        res.status(500).json({ error: "Errore durante lo svuotamento totale" });
+    }
+};

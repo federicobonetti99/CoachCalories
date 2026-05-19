@@ -5,9 +5,18 @@
         <h1 class="display-6 fw-bold text-success">📬 Centro Notifiche</h1>
         <p class="text-white-50">Resta aggiornato sulle attività dell'applicazione e i promemoria di dieta sostenibile.</p>
       </div>
-      <button class="btn btn-outline-secondary btn-sm" @click="$emit('navigate', 'Home')">
-        ⬅ Torna alla Home
-      </button>
+      <div class="d-flex gap-2">
+        <button 
+          v-if="notifications.length > 0"
+          class="btn btn-outline-danger btn-sm fw-bold d-flex align-items-center gap-1" 
+          @click="clearAllNotifications"
+        >
+          🗑️ Cancella Tutto
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" @click="$emit('navigate', 'Home')">
+          ⬅ Torna alla Home
+        </button>
+      </div>
     </div>
 
     <div class="card bg-dark text-white border-secondary shadow-lg rounded-4 p-4">
@@ -122,6 +131,20 @@ const deleteNotification = async (id, index) => {
   }
 };
 
+// 🌟 NUOVA: FA LA CHIAMATA PER EMETTERE LA CANCELLAZIONE TOTALE
+const clearAllNotifications = async () => {
+  if (!confirm("Sei sicuro di voler eliminare TUTTE le notifiche dello storico? Questa azione è irreversibile.")) return;
+  const { userGrade, userEmail } = getAuthDetails();
+  const recipient = userGrade === 'admin' ? 'admin' : userEmail;
+
+  try {
+    await axios.delete(`http://localhost:3000/api/notifications/all/${recipient}`);
+    notifications.value = []; // Svuota la pagina locale al volo
+  } catch (err) {
+    console.error("❌ Errore svuotamento totale:", err);
+  }
+};
+
 const handleNotificationClick = async (note) => {
   if (note.read) return;
 
@@ -132,11 +155,6 @@ const handleNotificationClick = async (note) => {
     if (index !== -1) {
       notifications.value[index] = { ...notifications.value[index], read: true };
     }
-
-    const event = new CustomEvent('notifica-letta-global', { detail: { id: note.id } });
-    window.dispatchEvent(event);
-
-    console.log("✅ Evento di sincronizzazione lanciato");
   } catch (err) {
     console.error(err);
   }
@@ -151,13 +169,17 @@ onMounted(() => {
     socket.emit('registra-utente', { userGrade, userEmail });
   }
 
-  // 🌟 ASCOLTA IL BROADCAST DI LETTURA DAL SERVER:
-  // Se clicchi sulla notifica nel dropdown, il server lo dice al socket, e la pagina sotto diventa grigia!
+  // Ascolta il broadcast di lettura singola
   socket.on('notifica-letta-broadcast', (data) => {
     const index = notifications.value.findIndex(n => n.id === data.id);
     if (index !== -1) {
       notifications.value[index] = { ...notifications.value[index], read: true };
     }
+  });
+
+  // 🌟 NUOVO: Ascolta se qualcuno (es. il dropdown o un altro pannello admin) svuota tutto
+  socket.on('notifiche-svuotate-broadcast', () => {
+    notifications.value = [];
   });
 
   socket.on('nuova-proposta-admin', (data) => {

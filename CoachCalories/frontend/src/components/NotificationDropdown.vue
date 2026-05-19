@@ -174,6 +174,11 @@ onMounted(() => {
     }
   });
 
+  socket.on('notifiche-svuotate-broadcast', () => {
+    liveNotifications.value = [];
+    unreadCount.value = 0;
+  });
+
   onUnmounted(() => socket.disconnect());
 });
 </script>

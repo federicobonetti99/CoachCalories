@@ -14,7 +14,10 @@ router.put('/:recipient', notificationController.markAsRead);
 // 4. Segna UNA singola notifica come letta
 router.put('/read-one/:id', notificationController.markAsReadOne);
 
-// 5. Elimina definitivamente una notifica
+// 5. Svuota tutte le notifiche dell'utente
+router.delete('/all/:recipient', notificationController.deleteAllNotifications);
+
+// 6. Elimina definitivamente una SINGOLA notifica
 router.delete('/:id', notificationController.deleteNotification);
 
 module.exports = router;
