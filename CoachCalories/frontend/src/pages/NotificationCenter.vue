@@ -147,12 +147,19 @@ onMounted(() => {
   const socket = io('http://localhost:3000');
   const { userGrade, userEmail } = getAuthDetails();
 
-  // 🌟 AGGIORNATO: Passiamo l'intero contesto utente al backend
   if (userGrade || userEmail) {
     socket.emit('registra-utente', { userGrade, userEmail });
   }
 
-  // Ascolta le proposte cibi destinate alla stanza degli admin (admin_room)
+  // 🌟 ASCOLTA IL BROADCAST DI LETTURA DAL SERVER:
+  // Se clicchi sulla notifica nel dropdown, il server lo dice al socket, e la pagina sotto diventa grigia!
+  socket.on('notifica-letta-broadcast', (data) => {
+    const index = notifications.value.findIndex(n => n.id === data.id);
+    if (index !== -1) {
+      notifications.value[index] = { ...notifications.value[index], read: true };
+    }
+  });
+
   socket.on('nuova-proposta-admin', (data) => {
     if (userGrade === 'admin') {
       notifications.value.unshift({

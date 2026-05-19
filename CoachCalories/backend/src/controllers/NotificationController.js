@@ -2,11 +2,7 @@ const mongoose = require('mongoose');
 const { notificationModel } = require('../models/notificationModel');
 const { userModel } = require('../models/userModel');
 
-// ====================================================================
-// 1. UTILITY INTERNA PER ALLINEARE I DESTINATARI (IL FIX DEL DISALLINEAMENTO)
-// ====================================================================
-// Questa funzione interna assicura che qualunque operazione (GET, PUT) fatta da Federico
-// o dall'admin colpisca sempre lo STESSO blocco di notifiche, azzerando i disallineamenti.
+// Utility interna per mappare i destinatari dell'admin
 const getTargetRecipients = (recipient) => {
     if (recipient === 'admin' || recipient === 'federico@coach.it' || recipient === 'Federico') {
         return ['admin', 'federico@coach.it', 'Federico'];
@@ -14,9 +10,7 @@ const getTargetRecipients = (recipient) => {
     return [recipient];
 };
 
-// ====================================================================
-// 2. RECUPERA NOTIFICHE NON LETTE (PER IL DROPDOWN IN ALTO)
-// ====================================================================
+// 1. RECUPERA NOTIFICHE NON LETTE (PER IL DROPDOWN IN ALTO)
 exports.getNotifications = async (req, res) => {
     try {
         const { recipient } = req.params;
@@ -34,9 +28,7 @@ exports.getNotifications = async (req, res) => {
     }
 };
 
-// ====================================================================
-// 3. RECUPERA STORICO COMPLETO (PER IL NOTIFICATION CENTER)
-// ====================================================================
+// 2. RECUPERA STORICO COMPLETO (PER IL NOTIFICATION CENTER)
 exports.getAllNotifications = async (req, res) => {
     try {
         const { recipient } = req.params; 
@@ -53,15 +45,12 @@ exports.getAllNotifications = async (req, res) => {
     }
 };
 
-// ====================================================================
-// 4. SEGNA TUTTE LE NOTIFICHE COME LETTE (QUANDO SI APRE IL DROPDOWN/CENTRO)
-// ====================================================================
+// 3. SEGNA TUTTE LE NOTIFICHE COME LETTE
 exports.markAsRead = async (req, res) => {
     try {
         const { recipient } = req.params;
         const targets = getTargetRecipients(recipient);
 
-        // 🌟 FIX CRITICO: Aggiorna lo stato 'read: true' su TUTTI i target dell'admin contemporaneamente!
         await notificationModel.updateMany(
             { recipient: { $in: targets }, read: false },
             { $set: { read: true } }
@@ -73,9 +62,7 @@ exports.markAsRead = async (req, res) => {
     }
 };
 
-// ====================================================================
-// 5. SEGNA UNA SINGOLA NOTIFICA COME LETTA (CLICCANDO SUL SINGOLO ELEMENTO)
-// ====================================================================
+// 4. SEGNA UNA SINGOLA NOTIFICA COME LETTA (CON EMIT SOCKET BROADCAST)
 exports.markAsReadOne = async (req, res) => {
     try {
         const { id } = req.params; 
@@ -90,6 +77,11 @@ exports.markAsReadOne = async (req, res) => {
             return res.status(404).json({ error: "Notifica non trovata nel DB" });
         }
 
+        // Se il ponte socket esiste, spara il broadcast di avvenuta lettura
+        if (req.io) {
+            req.io.to('admin_room').emit('notifica-letta-broadcast', { id: id });
+        }
+
         res.status(200).json({ success: true, message: "Notifica segnata come letta" });
     } catch (err) {
         console.error("Errore markAsReadOne:", err);
@@ -97,30 +89,7 @@ exports.markAsReadOne = async (req, res) => {
     }
 };
 
-// ====================================================================
-// 6. CREAZIONE NOTIFICA INTERNA (DA USARE NEI CONTROLLER DI SISTEMA)
-// ====================================================================
-exports.createInternalNotification = async (recipient, title, message, type = 'info') => {
-    try {
-        const newNote = new notificationModel({
-            recipient,
-            title,
-            message,
-            type
-        });
-        
-        const savedNote = await newNote.save();
-        console.log(`✅ Notifica creata nel DB (ID: ${savedNote._id}) per: ${recipient}`);
-        return savedNote; 
-    } catch (err) {
-        console.error("❌ Errore creazione notifica DB:", err);
-        return null;
-    }
-};
-
-// ====================================================================
-// 7. ELIMINA DEFINITIVAMENTE UNA NOTIFICA (DAL CENTRO NOTIFICHE)
-// ====================================================================
+// 5. ELIMINA DEFINITIVAMENTE UNA NOTIFICA
 exports.deleteNotification = async (req, res) => {
     try {
         const { id } = req.params;
@@ -134,12 +103,28 @@ exports.deleteNotification = async (req, res) => {
     }
 };
 
-// ====================================================================
-// 8. SCHEDULER DIARIO SULLA FISIONOMIA DELL'UTENTE
-// ====================================================================
+// 6. CREAZIONE NOTIFICA INTERNA (UTILITY PER ALTRI CONTROLLER)
+exports.createInternalNotification = async (recipient, title, message, type = 'info') => {
+    try {
+        const newNote = new notificationModel({
+            recipient,
+            title,
+            message,
+            type
+        });
+        
+        const savedNote = await newNote.save();
+        return savedNote; 
+    } catch (err) {
+        console.error("❌ Errore creazione notifica DB:", err);
+        return null;
+    }
+};
+
+// 7. CRON DIARIO SULLA FISIONOMIA
 exports.sendDailyReminder = async (io) => {
     try {
-        console.log("🕒 [CRON] Avvio invio promemoria con logica speculare alle proposte...");
+        console.log("🕒 [CRON] Avvio invio promemoria...");
         
         const diaryModel = mongoose.models.Diary || mongoose.model('Diary');
         const users = await userModel.find({}); 
@@ -148,8 +133,8 @@ exports.sendDailyReminder = async (io) => {
         const oggi = new Date();
         const anno = oggi.getFullYear();
         const mese = String(oggi.getMonth() + 1).padStart(2, '0');
-        const giorno = String(oggi.getDate()).padStart(2, '0');
-        const dataStringaOggi = `${anno}-${mese}-${giorno}`;
+        const g = String(oggi.getDate()).padStart(2, '0');
+        const dataStringaOggi = `${anno}-${mese}-${g}`;
 
         for (const user of users) {
             if (!user.username) continue;
@@ -212,8 +197,6 @@ exports.sendDailyReminder = async (io) => {
                 tipoNotifica = "success";
             }
 
-            // 🌟 LOGICA SPECCHIO 1: Il RECIPIENT deve combaciare con quello che il frontend si aspetta!
-            // Se l'utente corrente nel ciclo è l'admin (Federico), salviamo come 'admin', altrimenti usiamo la mail dell'utente normale.
             const destinatarioSicuro = (user.email === 'federico@coach.it' || user.username === 'Federico') ? 'admin' : user.email;
 
             const newNotification = new notificationModel({
@@ -227,10 +210,8 @@ exports.sendDailyReminder = async (io) => {
 
             const savedNote = await newNotification.save();
 
-            // 🌟 LOGICA SPECCHIO 2: Il canale di spedizione e le stanze
             if (io) {
                 if (destinatarioSicuro === 'admin') {
-                    // Se è l'admin, lo spariamo nella admin_room usando lo STESSO evento ascoltato dal tuo NotificationCenter!
                     io.to('admin_room').emit('nuova-proposta-admin', {
                         id: savedNote._id,
                         title: titolo,
@@ -238,7 +219,6 @@ exports.sendDailyReminder = async (io) => {
                         type: tipoNotifica
                     });
                 } else {
-                    // Se è un utente normale, lo mandiamo alla sua stanza privata
                     io.to(user.email).emit('esito-proposta', {
                         id: savedNote._id,
                         title: titolo,
@@ -248,7 +228,6 @@ exports.sendDailyReminder = async (io) => {
                 }
             }
         }
-        console.log(`✅ [CRON] Promemoria elaborati con architettura unificata.`);
     } catch (err) {
         console.error("❌ [CRON] Errore nel promemoria:", err.message);
     }

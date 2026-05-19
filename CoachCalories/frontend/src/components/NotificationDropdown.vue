@@ -41,7 +41,7 @@
             <span 
               class="badge fw-bold d-flex align-items-center" 
               :class="{
-                'bg-primary text-white': note.title === 'Nuova Proposta' || note.title === 'Proposta Approvata',
+                'bg-primary text-white': note.title === 'Nuova Proposta' || note.title === 'Proposta Approvata' || note.title === 'Proposta Rifiutata',
                 'bg-success text-white': note.type === 'success' && note.title !== 'Nuova Proposta' && note.title !== 'Proposta Approvata',
                 'bg-danger text-white': note.type === 'error' || note.title === 'Proposta Rifiutata',
                 'bg-info text-dark': note.type === 'info'
@@ -96,7 +96,7 @@ const goToCenter = () => {
   emit('view-all');
 };
 
-// 🌟 FUNZIONE DI SINCRONIZZAZIONE
+// 🌟 RICEZIONE SEGNALE DA ESTERNO (Quando clicchi sul Centro Notifiche)
 const handleGlobalSync = (event) => {
   const idLetto = event.detail.id;
   const index = liveNotifications.value.findIndex(n => n.id === idLetto);
@@ -104,7 +104,7 @@ const handleGlobalSync = (event) => {
   if (index !== -1) {
     liveNotifications.value.splice(index, 1);
     unreadCount.value = liveNotifications.value.length;
-    console.log(`🔄 Dropdown sincronizzato: rimossa notifica ${idLetto}`);
+    console.log(`🔄 Dropdown allineato: rimossa notifica ${idLetto}`);
   }
 };
 
@@ -128,70 +128,52 @@ const fetchNotifications = async () => {
   }
 };
 
+// 🌟 INVIO SEGNALE VERSO ESTERNO (Quando clicchi dentro il Dropdown)
+// Nella funzione markAsRead lascia solo questo, SENZA CustomEvent:
 const markAsRead = async (id, index) => {
-  if (!id) {
-    liveNotifications.value.splice(index, 1);
-    unreadCount.value--;
-    return;
-  }
-
+  if (!id) return;
   try {
     await axios.put(`http://localhost:3000/api/notifications/read-one/${id}`);
     liveNotifications.value.splice(index, 1);
     unreadCount.value--;
   } catch (err) {
-    console.error("❌ Errore nel segnare la notifica come letta:", err);
+    console.error(err);
   }
 };
 
+// E aggiorna l'onMounted del dropdown così:
 onMounted(() => {
   fetchNotifications();
   
-  window.addEventListener('notifica-letta-global', handleGlobalSync);
-
   const socket = io('http://localhost:3000');
-  
-  const registraSuSocket = () => {
-    // 🌟 RECUPERIAMO SIA IL GRADO CHE L'EMAIL
-    const { userGrade, userEmail } = getAuthDetails();
-    // 🌟 INVIAMO ENTRAMBI AL SERVER PER ABILITARE LE STANZE PRIVATE
-    if (userGrade || userEmail) {
-        socket.emit('registra-utente', { userGrade, userEmail });
+  const { userGrade, userEmail } = getAuthDetails();
+  if (userGrade || userEmail) {
+      socket.emit('registra-utente', { userGrade, userEmail });
+  }
+
+  // 🌟 ASCOLTA IL BROADCAST DI LETTURA DAL SERVER:
+  // Se leggi una notifica dal Centro Notifiche, il server lo dice al socket, e il dropdown si svuota!
+  socket.on('notifica-letta-broadcast', (data) => {
+    const index = liveNotifications.value.findIndex(n => n.id === data.id);
+    if (index !== -1) {
+      liveNotifications.value.splice(index, 1);
+      unreadCount.value = liveNotifications.value.length;
     }
-  };
+  });
 
-  registraSuSocket();
-
-  // 🔔 LISTENER 1: Per l'Admin (Nuova Proposta)
   socket.on('nuova-proposta-admin', (data) => {
-    const { userGrade } = getAuthDetails();
     if (userGrade === 'admin') {
       liveNotifications.value.unshift({
         id: data.id, 
-        title: "Nuova Proposta",
+        title: data.title || "Nuova Proposta",
         message: data.message,
-        type: 'success',
+        type: data.type || 'success',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       });
       unreadCount.value++;
     }
   });
 
-  // 🔔 LISTENER 2: 🌟 NUOVO PER L'UTENTE (Esito Approvazione/Rifiuto)
-  socket.on('esito-proposta', (data) => {
-    liveNotifications.value.unshift({
-      id: data.id,
-      title: data.title, // "Proposta Approvata" o "Proposta Rifiutata"
-      message: data.message,
-      type: data.type, // 'success' o 'error'
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    });
-    unreadCount.value++;
-  });
-
-  onUnmounted(() => {
-    socket.disconnect();
-    window.removeEventListener('notifica-letta-global', handleGlobalSync);
-  });
+  onUnmounted(() => socket.disconnect());
 });
 </script>
