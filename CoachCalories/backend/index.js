@@ -80,12 +80,12 @@ server.listen(3000, () => {
 const notificationController = require('./src/controllers/notificationController'); 
 
 // Configurazione del Cron Job (Attualmente impostato al minuto per i tuoi test)
-cron.schedule('* * * * *', () => {
-    // Passiamo l'istanza globale di 'io' in modo che possa fare gli .emit live
-    notificationController.sendDailyReminder(io);
+cron.schedule('0 18 * * *', () => {
+    // Passiamo l'istanza globale di io per i websocket live
+    sendDailyReminder(io); 
 }, {
     scheduled: true,
-    timezone: "Europe/Rome" // 🌟 IMPORTANTE: Forza il fuso orario italiano
+    timezone: "Europe/Rome" // 🇮🇹 Forza il fuso orario italiano per evitare sfasamenti con l'ora del server
 });
 
 console.log("⏰ Scheduler del promemoria giornaliero (ogni minuto per test) caricato con successo.");
