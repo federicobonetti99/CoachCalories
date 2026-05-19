@@ -1,23 +1,29 @@
-// 1. NOTA LE GRAFFE: devono esserci perché abbiamo usato module.exports = { notificationModel }
 const mongoose = require('mongoose');
 const { notificationModel } = require('../models/notificationModel');
 const { userModel } = require('../models/userModel');
 
-// 1. RECUPERA NOTIFICHE NON LETTE (GET) - Aggiornato con filtri flessibili per l'Admin
+// ====================================================================
+// 1. UTILITY INTERNA PER ALLINEARE I DESTINATARI (IL FIX DEL DISALLINEAMENTO)
+// ====================================================================
+// Questa funzione interna assicura che qualunque operazione (GET, PUT) fatta da Federico
+// o dall'admin colpisca sempre lo STESSO blocco di notifiche, azzerando i disallineamenti.
+const getTargetRecipients = (recipient) => {
+    if (recipient === 'admin' || recipient === 'federico@coach.it' || recipient === 'Federico') {
+        return ['admin', 'federico@coach.it', 'Federico'];
+    }
+    return [recipient];
+};
+
+// ====================================================================
+// 2. RECUPERA NOTIFICHE NON LETTE (PER IL DROPDOWN IN ALTO)
+// ====================================================================
 exports.getNotifications = async (req, res) => {
     try {
         const { recipient } = req.params;
-
-        // Creiamo un array di possibili destinatari
-        let targetRecipients = [recipient];
-
-        // Se chi interroga è l'admin, o se viene cercata l'email dell'admin, uniamo i target
-        if (recipient === 'admin' || recipient === 'federico@coach.it' || recipient === 'Federico') {
-            targetRecipients = ['admin', 'federico@coach.it', 'Federico'];
-        }
+        const targets = getTargetRecipients(recipient);
 
         const notifications = await notificationModel.find({ 
-            recipient: { $in: targetRecipients }, 
+            recipient: { $in: targets }, 
             read: false 
         }).sort({ createdAt: -1 });
 
@@ -28,20 +34,16 @@ exports.getNotifications = async (req, res) => {
     }
 };
 
+// ====================================================================
+// 3. RECUPERA STORICO COMPLETO (PER IL NOTIFICATION CENTER)
+// ====================================================================
 exports.getAllNotifications = async (req, res) => {
     try {
         const { recipient } = req.params; 
+        const targets = getTargetRecipients(recipient);
 
-        // Creiamo la lista dei target. Se l'utente è l'admin, deve vedere TUTTO ciò che è indirizzato a lui
-        let targetRecipients = [recipient];
-
-        if (recipient === 'admin' || recipient === 'federico@coach.it' || recipient === 'Federico') {
-            targetRecipients = ['admin', 'federico@coach.it', 'Federico'];
-        }
-
-        // L'operatore $in di Mongoose prende qualsiasi notifica che abbia come recipient uno dei valori nell'array
         const notifications = await notificationModel.find({ 
-            recipient: { $in: targetRecipients }
+            recipient: { $in: targets }
         }).sort({ createdAt: -1 }); 
 
         res.status(200).json(notifications);
@@ -51,25 +53,32 @@ exports.getAllNotifications = async (req, res) => {
     }
 };
 
-// 2. SEGNA COME LETTE (PUT)
+// ====================================================================
+// 4. SEGNA TUTTE LE NOTIFICHE COME LETTE (QUANDO SI APRE IL DROPDOWN/CENTRO)
+// ====================================================================
 exports.markAsRead = async (req, res) => {
     try {
         const { recipient } = req.params;
+        const targets = getTargetRecipients(recipient);
+
+        // 🌟 FIX CRITICO: Aggiorna lo stato 'read: true' su TUTTI i target dell'admin contemporaneamente!
         await notificationModel.updateMany(
-            { recipient: recipient, read: false },
+            { recipient: { $in: targets }, read: false },
             { $set: { read: true } }
         );
-        res.status(200).json({ success: true, message: "Notifiche aggiornate" });
+        res.status(200).json({ success: true, message: "Notifiche aggiornate in blocco" });
     } catch (err) {
         console.error("Errore aggiornamento:", err);
         res.status(500).json({ error: "Errore aggiornamento notifiche" });
     }
 };
 
-// Segna una singola notifica come letta
+// ====================================================================
+// 5. SEGNA UNA SINGOLA NOTIFICA COME LETTA (CLICCANDO SUL SINGOLO ELEMENTO)
+// ====================================================================
 exports.markAsReadOne = async (req, res) => {
     try {
-        const { id } = req.params; // Prende l'ID dall'URL
+        const { id } = req.params; 
         
         const updated = await notificationModel.findByIdAndUpdate(
             id, 
@@ -88,6 +97,9 @@ exports.markAsReadOne = async (req, res) => {
     }
 };
 
+// ====================================================================
+// 6. CREAZIONE NOTIFICA INTERNA (DA USARE NEI CONTROLLER DI SISTEMA)
+// ====================================================================
 exports.createInternalNotification = async (recipient, title, message, type = 'info') => {
     try {
         const newNote = new notificationModel({
@@ -97,19 +109,18 @@ exports.createInternalNotification = async (recipient, title, message, type = 'i
             type
         });
         
-        // Salviamo e otteniamo l'oggetto completo dal database
         const savedNote = await newNote.save();
-        
         console.log(`✅ Notifica creata nel DB (ID: ${savedNote._id}) per: ${recipient}`);
-        
-        return savedNote; // 🌟 RESTITUISCE TUTTO IL DOCUMENTO
+        return savedNote; 
     } catch (err) {
         console.error("❌ Errore creazione notifica DB:", err);
-        return null; // Restituiamo null in caso di errore
+        return null;
     }
 };
 
-// ELIMINA DEFINITIVAMENTE UNA NOTIFICA
+// ====================================================================
+// 7. ELIMINA DEFINITIVAMENTE UNA NOTIFICA (DAL CENTRO NOTIFICHE)
+// ====================================================================
 exports.deleteNotification = async (req, res) => {
     try {
         const { id } = req.params;
@@ -123,16 +134,17 @@ exports.deleteNotification = async (req, res) => {
     }
 };
 
+// ====================================================================
+// 8. SCHEDULER DIARIO SULLA FISIONOMIA DELL'UTENTE
+// ====================================================================
 exports.sendDailyReminder = async (io) => {
     try {
-        console.log("🕒 [CRON] Avvio invio promemoria iper-personalizzato...");
+        console.log("🕒 [CRON] Avvio invio promemoria con logica speculare alle proposte...");
         
         const diaryModel = mongoose.models.Diary || mongoose.model('Diary');
-
         const users = await userModel.find({}); 
         if (!users || users.length === 0) return;
         
-        // 1. Generiamo la data di oggi nel formato "AAAA-MM-GG" identico al tuo DB (es: "2026-05-19")
         const oggi = new Date();
         const anno = oggi.getFullYear();
         const mese = String(oggi.getMonth() + 1).padStart(2, '0');
@@ -145,7 +157,6 @@ exports.sendDailyReminder = async (io) => {
             let tdeeTarget = 2000;
             let proteineTarget = 60;
 
-            // 2. Calcolo dei target reali sulla fisionomia dell'utente
             if (user.physiologicalHistory && user.physiologicalHistory.length > 0) {
                 const fisionomia = user.physiologicalHistory[user.physiologicalHistory.length - 1];
                 const { weight, height, age, gender, activityLevel } = fisionomia;
@@ -167,13 +178,11 @@ exports.sendDailyReminder = async (io) => {
                 proteineTarget = Math.round(weight * 1.5);
             }
 
-            // 3. 🌟 QUERY SULLA STRINGA DELLA DATA CORRENTE ("date")
             const diarioOggi = await diaryModel.findOne({
                 username: user.username, 
                 date: dataStringaOggi
             });
 
-            // Estraggo i dati dall'oggetto "totals" se il diario esiste, altrimenti a zero
             let totalKcal = 0;
             let totalProteine = 0;
 
@@ -182,9 +191,6 @@ exports.sendDailyReminder = async (io) => {
                 totalProteine = Number(diarioOggi.totals.proteine_g) || 0;
             }
 
-            console.log(`🔍 [DEBUG CRON] Utente: ${user.username} | Data cercata: ${dataStringaOggi} | Trovato diario? ${diarioOggi ? 'SÌ' : 'NO'} | Kcal: ${totalKcal}`);
-
-            // 4. Generiamo il messaggio su misura basandoci sulla sua fisionomia
             let titolo = "📊 Bilancio Giornaliero";
             let messaggio = "";
             let tipoNotifica = "info";
@@ -192,7 +198,6 @@ exports.sendDailyReminder = async (io) => {
             const pctCalorie = (totalKcal / tdeeTarget) * 100;
             const pctProteine = (totalProteine / proteineTarget) * 100;
 
-            // Se non c'è il diario, o l'array cibi è vuoto, o le calorie sono a zero
             if (!diarioOggi || !diarioOggi.foods || diarioOggi.foods.length === 0 || totalKcal === 0) {
                 messaggio = `Ciao ${user.username}, la giornata sta per finire e non hai ancora segnato nulla nel diario. Ricordati di inserire i dati di oggi! 📝`;
                 tipoNotifica = "error"; 
@@ -207,9 +212,12 @@ exports.sendDailyReminder = async (io) => {
                 tipoNotifica = "success";
             }
 
-            // 5. Salviamo la notifica nel DB
+            // 🌟 LOGICA SPECCHIO 1: Il RECIPIENT deve combaciare con quello che il frontend si aspetta!
+            // Se l'utente corrente nel ciclo è l'admin (Federico), salviamo come 'admin', altrimenti usiamo la mail dell'utente normale.
+            const destinatarioSicuro = (user.email === 'federico@coach.it' || user.username === 'Federico') ? 'admin' : user.email;
+
             const newNotification = new notificationModel({
-                recipient: user.email || user.username, 
+                recipient: destinatarioSicuro, 
                 title: titolo,
                 message: messaggio,
                 type: tipoNotifica,
@@ -219,18 +227,28 @@ exports.sendDailyReminder = async (io) => {
 
             const savedNote = await newNotification.save();
 
-            // 6. Spediamo live via Socket
+            // 🌟 LOGICA SPECCHIO 2: Il canale di spedizione e le stanze
             if (io) {
-                const room = user.email || user.username;
-                io.to(room).emit('esito-proposta', {
-                    id: savedNote._id,
-                    title: titolo,
-                    message: messaggio,
-                    type: tipoNotifica
-                });
+                if (destinatarioSicuro === 'admin') {
+                    // Se è l'admin, lo spariamo nella admin_room usando lo STESSO evento ascoltato dal tuo NotificationCenter!
+                    io.to('admin_room').emit('nuova-proposta-admin', {
+                        id: savedNote._id,
+                        title: titolo,
+                        message: messaggio,
+                        type: tipoNotifica
+                    });
+                } else {
+                    // Se è un utente normale, lo mandiamo alla sua stanza privata
+                    io.to(user.email).emit('esito-proposta', {
+                        id: savedNote._id,
+                        title: titolo,
+                        message: messaggio,
+                        type: tipoNotifica
+                    });
+                }
             }
         }
-        console.log(`✅ [CRON] Promemoria fisionomici elaborati per tutti gli utenti.`);
+        console.log(`✅ [CRON] Promemoria elaborati con architettura unificata.`);
     } catch (err) {
         console.error("❌ [CRON] Errore nel promemoria:", err.message);
     }

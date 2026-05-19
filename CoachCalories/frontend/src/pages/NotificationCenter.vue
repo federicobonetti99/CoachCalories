@@ -31,7 +31,7 @@
               <span 
                 class="badge me-2 d-flex align-items-center" 
                 :class="note.read ? 'bg-secondary opacity-50' : {
-                  'bg-primary': note.title === 'Nuova Proposta',
+                  'bg-primary': note.title === 'Nuova Proposta' || note.title === 'Proposta Approvata' || note.title === 'Proposta Rifiutata',
                   'bg-success': note.type === 'success' && note.title !== 'Nuova Proposta',
                   'bg-info': note.type === 'info',
                   'bg-danger': note.type === 'error'
@@ -92,7 +92,7 @@ const getAuthDetails = () => {
 
 const fetchAllNotifications = async () => {
   const { userGrade, userEmail } = getAuthDetails();
-  const recipient = userGrade === 'admin' ? 'admin' : userEmail;
+  const recipient = userGrade === 'admin' ? 'admin' : userEmail; 
   if (!recipient) return;
 
   try {
@@ -128,13 +128,11 @@ const handleNotificationClick = async (note) => {
   try {
     await axios.put(`http://localhost:3000/api/notifications/read-one/${note.id}`);
     
-    // Aggiorna la vista locale (quello che abbiamo già fatto)
     const index = notifications.value.findIndex(n => n.id === note.id);
     if (index !== -1) {
       notifications.value[index] = { ...notifications.value[index], read: true };
     }
 
-    // 🌟 IL TRUCCO: Lancia un evento globale nel browser
     const event = new CustomEvent('notifica-letta-global', { detail: { id: note.id } });
     window.dispatchEvent(event);
 
@@ -147,17 +145,21 @@ const handleNotificationClick = async (note) => {
 onMounted(() => {
   fetchAllNotifications();
   const socket = io('http://localhost:3000');
-  const { userGrade } = getAuthDetails();
+  const { userGrade, userEmail } = getAuthDetails();
 
-  if (userGrade) socket.emit('registra-utente', { userGrade });
+  // 🌟 AGGIORNATO: Passiamo l'intero contesto utente al backend
+  if (userGrade || userEmail) {
+    socket.emit('registra-utente', { userGrade, userEmail });
+  }
 
+  // Ascolta le proposte cibi destinate alla stanza degli admin (admin_room)
   socket.on('nuova-proposta-admin', (data) => {
     if (userGrade === 'admin') {
       notifications.value.unshift({
         id: data.id, 
-        title: "Nuova Proposta",
+        title: data.title || "Nuova Proposta",
         message: data.message,
-        type: 'success',
+        type: data.type || 'success',
         read: false,
         time: new Date().toLocaleString([], { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
       });
