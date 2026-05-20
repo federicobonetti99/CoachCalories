@@ -11,6 +11,8 @@ import DiarySchema from './pages/DiarySchemaPage.vue'
 import FoodProposalPage from './pages/FoodProposalPage.vue' 
 import AdminProposalsPage from './pages/AdminProposalsPage.vue' 
 import NotificationCenterPage from './pages/NotificationCenter.vue'
+// 🌟 IMPORTIAMO IL COACH IA
+import CoachIA from './pages/CoachIA.vue'
 
 const isLogged = ref(false)
 const userGrade = ref('')
@@ -94,6 +96,8 @@ const setPage = (pageName, id = null) => {
       />
 
       <DailyDiaryPage v-if="currentPage === 'DailyDiaryPage' && isLogged" />
+
+      <CoachIA v-if="currentPage === 'CoachIA' && isLogged" />
 
       <div v-if="currentPage === 'Catalog'" class="catalog-section">
         <h2 class="text-white mb-4">Gestione Catalogo Alimentare</h2>

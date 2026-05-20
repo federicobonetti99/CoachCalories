@@ -27,6 +27,10 @@ const emit = defineEmits(['logout', 'navigate']);
           </li>
 
           <li v-if="userGrade" class="nav-item">
+            <a class="nav-link text-primary fw-bold" href="#" @click.prevent="$emit('navigate', 'CoachIA')">🤖 Coach IA</a>
+          </li>
+
+          <li v-if="userGrade" class="nav-item">
             <a class="nav-link text-info fw-bold" href="#" @click.prevent="$emit('navigate', 'DiarySchema')">📊 Analisi</a>
           </li>
 
