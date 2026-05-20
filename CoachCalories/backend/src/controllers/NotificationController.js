@@ -146,11 +146,11 @@ exports.sendDailyReminder = async (io) => {
                 const fisionomia = user.physiologicalHistory[user.physiologicalHistory.length - 1];
                 const { weight, height, age, gender, activityLevel } = fisionomia;
 
-                let bmr = 0;
+                let bmr = (10 * weight) + (6.25 * height) - (5 * age);
                 if (gender === 'M') {
-                    bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+                    bmr += 5;
                 } else {
-                    bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+                    bmr -= 161;
                 }
 
                 let pal = 1.2;
