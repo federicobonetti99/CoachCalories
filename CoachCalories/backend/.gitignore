@@ -1,0 +1,8 @@
+# Password e chiavi segrete
+.env
+.env.local
+
+# Cartelle pesanti che non vanno su GitHub
+node_modules/
+dist/
+.DS_Store

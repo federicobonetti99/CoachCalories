@@ -157,8 +157,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="container mt-4 mb-5">
-    <div class="row mb-5 align-items-center">
+  <section class="container-fluid px-4 mt-4 mb-5" style="max-width: 1400px;">
+    <div class="row mb-4 align-items-center">
       <div class="col-md-12 text-center">
         <h1 class="display-5 fw-bold text-success">Diario Giornaliero</h1>
         <p class="text-muted">Tieni traccia di tutto ciò che mangi oggi.</p>
@@ -182,116 +182,125 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="card bg-dark text-white shadow-sm border-0 rounded-4 p-4 mb-5">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="text-success fw-bold m-0">Resoconto della giornata del {{ date }}</h4>
-        
-        <button 
-          v-if="todayFoods.length > 0" 
-          class="btn btn-sm btn-outline-danger px-3 fw-bold" 
-          @click="clearDailyDiary"
-        >
-          🗑️ Svuota Giornata
-        </button>
-      </div>
-      <div v-if="todayFoods.length === 0" class="text-center text-white-50 py-3">
-        Nessun alimento inserito per oggi. Dillo al coach qui sotto!
-      </div>
-
-      <ul v-else class="list-group list-group-flush mb-4 bg-transparent">
-        <li 
-          v-for="food in todayFoods" 
-          :key="food._id || food.foodId" 
-          class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center border-secondary px-0"
-        >
-          <div>
-            <strong class="text-white">{{ food.nome }}</strong>
-          </div>
-          <div class="d-flex align-items-center gap-3">
-            <span class="badge bg-black border border-secondary text-success" style="font-size: 0.9rem;">{{ food.calorie }} kcal</span>
+    <div class="row g-4 align-items-stretch">
+      
+      <div class="col-lg-7">
+        <div class="card bg-dark text-white shadow-sm border-0 rounded-4 p-4 h-100 d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="text-success fw-bold m-0">Resoconto del {{ date }}</h4>
+            
             <button 
-              class="btn btn-sm btn-outline-danger border-0" 
-              @click="removeFoodFromDiary(food._id || food.foodId)"
-              title="Rimuovi"
+              v-if="todayFoods.length > 0" 
+              class="btn btn-sm btn-outline-danger px-3 fw-bold" 
+              @click="clearDailyDiary"
             >
-              ❌
+              🗑️ Svuota Giornata
             </button>
           </div>
-        </li>
-      </ul>
 
-      <div class="row g-2 mt-2 bg-black p-3 rounded-3 align-items-center">
-        <div class="col-md-3 text-center border-end border-secondary">
-          <div class="small text-white text-uppercase fw-bold">Calorie Assunte</div>
-          <div class="fs-4 fw-bold" :class="totals.calorie > maintenanceCalories ? 'text-danger' : 'text-success'">
-            {{ totals.calorie }} / {{ maintenanceCalories }} kcal
-          </div>
-        </div>
-        <div class="col-md-3 text-center border-end border-secondary">
-          <div class="small text-white text-uppercase fw-bold">Carbs</div>
-          <div class="fs-4 fw-bold text-warning">{{ (totals.carboidrati_g || 0).toFixed(1) }}g</div>
-        </div>
-        <div class="col-md-3 text-center border-end border-secondary">
-          <div class="small text-white text-uppercase fw-bold">Proteine</div>
-          <div class="fs-4 fw-bold text-danger">{{ (totals.proteine_g || 0).toFixed(1) }}g</div>
-        </div>
-        <div class="col-md-3 text-center">
-          <div class="small text-white text-uppercase fw-bold">Grassi</div>
-          <div class="fs-4 fw-bold text-info">{{ (totals.grassi_g || 0).toFixed(1) }}g</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card bg-dark text-white shadow-sm border-secondary rounded-4 d-flex flex-column" style="height: 550px;">
-      
-      <div class="p-3 border-bottom border-secondary bg-black rounded-top-4 d-flex align-items-center gap-2">
-        <span class="fs-4">🤖</span>
-        <div>
-          <h5 class="m-0 fw-bold text-success">CoachCalories AI</h5>
-          <small class="text-white-50">Sempre attivo. Dimmi cosa hai mangiato.</small>
-        </div>
-      </div>
-
-      <div class="flex-grow-1 p-4 overflow-auto chat-container" ref="chatContainer">
-        <div 
-          v-for="(msg, i) in chatMessages" 
-          :key="i" 
-          class="d-flex mb-3 animate-fade-in" 
-          :class="msg.sender === 'user' ? 'justify-content-end' : 'justify-content-start'"
-        >
-          <div v-if="msg.sender === 'bot'" class="chat-bubble bot-bubble">
-            {{ msg.text }}
+          <div v-if="todayFoods.length === 0" class="text-center text-white-50 py-5 flex-grow-1 d-flex align-items-center justify-content-center">
+            Nessun alimento inserito per oggi. Dillo al coach qui di fianco!
           </div>
 
-          <div v-else class="chat-bubble user-bubble">
-            {{ msg.text }}
-          </div>
-        </div>
-        
-        <div v-if="isTyping" class="d-flex mb-3 justify-content-start animate-fade-in">
-          <div class="chat-bubble bot-bubble text-white-50 fst-italic">
-            Il coach sta calcolando i macro... 🧠
+          <ul v-else class="list-group list-group-flush mb-4 bg-transparent flex-grow-1 overflow-auto" style="max-height: 400px;">
+            <li 
+              v-for="food in todayFoods" 
+              :key="food._id || food.foodId" 
+              class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center border-secondary px-0"
+            >
+              <div>
+                <strong class="text-white">{{ food.nome }}</strong>
+              </div>
+              <div class="d-flex align-items-center gap-3">
+                <span class="badge bg-black border border-secondary text-success" style="font-size: 0.9rem;">{{ food.calorie }} kcal</span>
+                <button 
+                  class="btn btn-sm btn-outline-danger border-0" 
+                  @click="removeFoodFromDiary(food._id || food.foodId)"
+                  title="Rimuovi"
+                >
+                  ❌
+                </button>
+              </div>
+            </li>
+          </ul>
+
+          <div class="row g-2 mt-auto bg-black p-3 rounded-3 align-items-center">
+            <div class="col-md-3 text-center border-end border-secondary">
+              <div class="small text-white text-uppercase fw-bold">Calorie</div>
+              <div class="fs-5 fw-bold" :class="totals.calorie > maintenanceCalories ? 'text-danger' : 'text-success'">
+                {{ totals.calorie }} / {{ maintenanceCalories }}
+              </div>
+            </div>
+            <div class="col-md-3 text-center border-end border-secondary">
+              <div class="small text-white text-uppercase fw-bold">Carbs</div>
+              <div class="fs-5 fw-bold text-warning">{{ (totals.carboidrati_g || 0).toFixed(1) }}g</div>
+            </div>
+            <div class="col-md-3 text-center border-end border-secondary">
+              <div class="small text-white text-uppercase fw-bold">Pro</div>
+              <div class="fs-5 fw-bold text-danger">{{ (totals.proteine_g || 0).toFixed(1) }}g</div>
+            </div>
+            <div class="col-md-3 text-center">
+              <div class="small text-white text-uppercase fw-bold">Grassi</div>
+              <div class="fs-5 fw-bold text-info">{{ (totals.grassi_g || 0).toFixed(1) }}g</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="p-3 bg-black border-top border-secondary rounded-bottom-4">
-        <div class="input-group input-group-lg">
-          <input 
-            type="text" 
-            v-model="userMessage" 
-            @keyup.enter="sendMessage"
-            class="form-control bg-dark text-white border-secondary shadow-none" 
-            placeholder="Es. Zio, mi sono sfondato 200g di pollo..." 
-            :disabled="isTyping"
-          />
-          <button 
-            class="btn btn-success fw-bold px-4" 
-            @click="sendMessage"
-            :disabled="isTyping || !userMessage.trim()"
-          >
-            Invia 🚀
-          </button>
+      <div class="col-lg-5">
+        <div class="card bg-dark text-white shadow-sm border-secondary rounded-4 d-flex flex-column h-100" style="min-height: 550px;">
+          
+          <div class="p-3 border-bottom border-secondary bg-black rounded-top-4 d-flex align-items-center gap-2">
+            <span class="fs-4">🤖</span>
+            <div>
+              <h5 class="m-0 fw-bold text-success">CoachCalories AI</h5>
+              <small class="text-white-50">Sempre attivo. Dimmi cosa hai mangiato.</small>
+            </div>
+          </div>
+
+          <div class="flex-grow-1 p-4 overflow-auto chat-container" ref="chatContainer">
+            <div 
+              v-for="(msg, i) in chatMessages" 
+              :key="i" 
+              class="d-flex mb-3 animate-fade-in" 
+              :class="msg.sender === 'user' ? 'justify-content-end' : 'justify-content-start'"
+            >
+              <div v-if="msg.sender === 'bot'" class="chat-bubble bot-bubble">
+                {{ msg.text }}
+              </div>
+
+              <div v-else class="chat-bubble user-bubble">
+                {{ msg.text }}
+              </div>
+            </div>
+            
+            <div v-if="isTyping" class="d-flex mb-3 justify-content-start animate-fade-in">
+              <div class="chat-bubble bot-bubble text-white-50 fst-italic">
+                Il coach sta calcolando i macro... 🧠
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 bg-black border-top border-secondary rounded-bottom-4">
+            <div class="input-group">
+              <input 
+                type="text" 
+                v-model="userMessage" 
+                @keyup.enter="sendMessage"
+                class="form-control bg-dark text-white border-secondary shadow-none" 
+                placeholder="Es. Zio, mi sono sfondato..." 
+                :disabled="isTyping"
+              />
+              <button 
+                class="btn btn-success fw-bold px-3" 
+                @click="sendMessage"
+                :disabled="isTyping || !userMessage.trim()"
+              >
+                Invia 🚀
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -303,17 +312,18 @@ onMounted(() => {
 /* Stili per la chat */
 .chat-container {
   scroll-behavior: smooth;
-  background-color: #1a1d20; /* Leggermente più scuro per staccare dal container */
+  background-color: #1a1d20;
 }
 
+/* Modificata la larghezza massima per non sbordare nella colonna più stretta */
 .chat-bubble {
-  max-width: 75%;
+  max-width: 85%;
   padding: 12px 18px;
   border-radius: 1.2rem;
-  font-size: 1.05rem;
+  font-size: 1rem;
   line-height: 1.4;
   word-wrap: break-word;
-  white-space: pre-wrap; /* Permette all'IA di andare a capo */
+  white-space: pre-wrap;
 }
 
 .bot-bubble {

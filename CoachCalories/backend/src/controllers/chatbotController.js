@@ -1,81 +1,65 @@
-const { GoogleGenerativeAI, SchemaType } = require('@google/generative-ai');
+require('dotenv').config();
+const Groq = require('groq-sdk');
 const mongoose = require('mongoose');
 
-// Inizializziamo l'SDK con la tua chiave segreta
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// 1. Inizializza Groq
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-// Recuperiamo il modello del diario dal tuo database
+// 2. Recupera il modello del diario SENZA fare casini con l'ordine dei file
 const diaryModel = mongoose.models.Diary || mongoose.model('Diary');
 
-// 🛠️ 1. DEFINIAMO GLI "STRUMENTI" (FUNCTION CALLING)
-// Spieghiamo all'IA come è fatto il tuo database e quali parametri deve estrarre dalla frase dell'utente.
-const insertFoodTool = {
-    name: "inserisci_cibo_diario",
-    description: "Inserisce un alimento nel diario giornaliero dell'utente. Usa questa funzione SOLO quando l'utente dichiara esplicitamente di aver mangiato o bevuto qualcosa. Stima tu i macronutrienti in base al cibo descritto.",
-    parameters: {
-        type: SchemaType.OBJECT,
-        properties: {
-            nome_alimento: {
-                type: SchemaType.STRING,
-                description: "Il nome del cibo e la quantità, es. 'Petto di pollo (200g)'"
-            },
-            calorie: {
-                type: SchemaType.NUMBER,
-                description: "Le calorie totali stimate per quella quantità"
-            },
-            proteine_g: {
-                type: SchemaType.NUMBER,
-                description: "Proteine totali in grammi stimate"
-            },
-            grassi_g: {
-                type: SchemaType.NUMBER,
-                description: "Grassi totali in grammi stimati"
-            },
-            carboidrati_g: {
-                type: SchemaType.NUMBER,
-                description: "Carboidrati totali in grammi stimati"
+// 3. Definisci lo strumento per Groq
+const tools = [
+    {
+        type: "function",
+        function: {
+            name: "inserisci_cibo_diario",
+            description: "Usa questa funzione SOLO se l'utente dichiara di aver mangiato qualcosa. Stima tu calorie e macronutrienti.",
+            parameters: {
+                type: "object",
+                properties: {
+                    nome_alimento: { type: "string", description: "Nome e quantità, es. 'Petto di pollo (200g)'" },
+                    calorie: { type: "number", description: "Calorie totali" },
+                    proteine_g: { type: "number", description: "Proteine totali in grammi" },
+                    grassi_g: { type: "number", description: "Grassi totali in grammi" },
+                    carboidrati_g: { type: "number", description: "Carboidrati totali in grammi" }
+                },
+                required: ["nome_alimento", "calorie", "proteine_g", "grassi_g", "carboidrati_g"]
             }
-        },
-        required: ["nome_alimento", "calorie", "proteine_g", "grassi_g", "carboidrati_g"]
+        }
     }
-};
+];
 
-// 🧠 2. LA FUNZIONE PRINCIPALE DELLA CHAT
 exports.handleChatMessage = async (req, res) => {
     try {
-        // Il frontend ci passerà il messaggio scritto e il nome dell'utente
         const { message, username } = req.body;
-
         if (!message) return res.status(400).json({ error: "Devi scrivere qualcosa." });
 
-        // Configurazione del Modello con il "System Prompt" (Il cervello del Coach)
-        const model = genAI.getGenerativeModel({
-            model: "gemini-2.5-flash", 
-            systemInstruction: `Sei CoachCalories AI, un personal trainer virtuale. L'utente con cui parli si chiama ${username || 'Bro'}. 
-            Sei diretto, motivante, ma anche un po' sarcastico se l'utente mangia schifezze. 
-            NON fare discorsi lunghi. Sii conciso. 
-            Se l'utente ti dice che ha mangiato qualcosa, usa il tuo strumento 'inserisci_cibo_diario' per calcolare i macronutrienti e salvarli.`,
-            tools: [{ functionDeclarations: [insertFoodTool] }]
+        // 4. Chiamata all'intelligenza di Groq
+        const chatCompletion = await groq.chat.completions.create({
+            messages: [
+                {
+                    role: "system",
+                    content: `Sei CoachCalories AI. Parli con ${username || 'Bro'}. Sii motivante ma sarcastico. Sii conciso. Se ha mangiato, usa la funzione 'inserisci_cibo_diario'.`
+                },
+                { role: "user", content: message }
+            ],
+            model: "llama-3.1-8b-instant", // Modello verificato e funzionante
+            tools: tools,
+            tool_choice: "auto"
         });
 
-        // Avviamo la chat session
-        const chat = model.startChat();
-        
-        // Mandiamo il messaggio dell'utente all'IA
-        const result = await chat.sendMessage(message);
-        
-        // Controlliamo se l'IA ha deciso di usare il telecomando (Function Call)
-        const functionCalls = result.response.functionCalls();
+        const responseMessage = chatCompletion.choices[0].message;
 
-        if (functionCalls && functionCalls.length > 0) {
-            const call = functionCalls[0];
+        // 5. Se Groq decide che c'è del cibo da inserire
+        if (responseMessage.tool_calls && responseMessage.tool_calls.length > 0) {
+            const toolCall = responseMessage.tool_calls[0];
             
-            if (call.name === "inserisci_cibo_diario") {
-                const args = call.args;
-
-                // --- 💾 SALVATAGGIO NEL DATABASE MONGODB ---
-                console.log(`🤖 L'IA ha intercettato del cibo: ${args.nome_alimento}. Salvataggio in corso...`);
+            if (toolCall.function.name === "inserisci_cibo_diario") {
+                const args = JSON.parse(toolCall.function.arguments);
                 
+                console.log(`🤖 Cibo intercettato da Groq: ${args.nome_alimento}`);
+
                 const oggi = new Date();
                 const dataStringa = `${oggi.getFullYear()}-${String(oggi.getMonth() + 1).padStart(2, '0')}-${String(oggi.getDate()).padStart(2, '0')}`;
 
@@ -84,8 +68,12 @@ exports.handleChatMessage = async (req, res) => {
                     diario = new diaryModel({ username: username, date: dataStringa, foods: [], totals: { calorie: 0, proteine_g: 0, grassi_g: 0, carboidrati_g: 0 } });
                 }
 
-                // Inseriamo il cibo estratto dall'IA
+                // FIX DELLA VALIDAZIONE: Genera un ID fasullo ma valido per MongoDB
+                const generatedId = new mongoose.Types.ObjectId();
+
                 diario.foods.push({
+                    foodId: generatedId,
+                    _id: generatedId,
                     nome: args.nome_alimento,
                     calorie: args.calorie,
                     proteine_g: args.proteine_g,
@@ -94,7 +82,6 @@ exports.handleChatMessage = async (req, res) => {
                     orario: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 });
 
-                // Aggiorniamo i totali
                 diario.totals.calorie += args.calorie;
                 diario.totals.proteine_g += args.proteine_g;
                 diario.totals.grassi_g += args.grassi_g;
@@ -102,30 +89,22 @@ exports.handleChatMessage = async (req, res) => {
 
                 await diario.save();
 
-                // 🔄 Diciamo all'IA che abbiamo salvato il cibo con successo nel DB
-                const finalResult = await chat.sendMessage([{
-                    functionResponse: {
-                        name: "inserisci_cibo_diario",
-                        response: { success: true, message: "Cibo salvato nel database. Ora dai una risposta finale all'utente." }
-                    }
-                }]);
-
-                // Rispondiamo al frontend dicendo "Testo dell'IA" + Flag "Ho inserito un cibo"
+                // Diamo una risposta standard senza fare una seconda chiamata API per ridurre i rischi di crash
                 return res.json({
-                    reply: finalResult.response.text(),
+                    reply: `Ho inserito ${args.nome_alimento} (${args.calorie} kcal) nel tuo diario. Ora non fare finta di niente e vai ad allenarti.`,
                     action: "food_inserted"
                 });
             }
         }
 
-        // Se l'IA non ha rilevato cibo, significa che stava solo facendo conversazione. Restituiamo il testo puro.
+        // 6. Se l'utente voleva solo chiacchierare
         return res.json({
-            reply: result.response.text(),
+            reply: responseMessage.content,
             action: "none"
         });
 
     } catch (error) {
         console.error("❌ Errore Chatbot:", error);
-        res.status(500).json({ error: "Il coach è svenuto sotto la pressa. Riprova più tardi." });
+        res.status(500).json({ error: "Errore interno. Controlla il terminale del backend." });
     }
 };
