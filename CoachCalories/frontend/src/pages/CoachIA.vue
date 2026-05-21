@@ -58,7 +58,7 @@ const sendMessage = async () => {
     }
   } catch (e) {
     console.error("Errore chat:", e);
-    chatMessages.value.push({ sender: 'bot', text: "Zio, il server è crashato. Ho bisogno di zuccheri, riprova tra poco." });
+    chatMessages.value.push({ sender: 'bot', text: "Il server è crashato. Ho bisogno di zuccheri, riprova tra poco." });
   } finally {
     isTyping.value = false;
     scrollToBottom();
