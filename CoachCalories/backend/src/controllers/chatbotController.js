@@ -5,38 +5,77 @@ const mongoose = require('mongoose');
 // 1. Inizializza Groq
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-// 2. Recupera i modelli (Invariati, sicuri)
+// 2. Recupera i modelli
 const diaryModel = mongoose.models.Diary || mongoose.model('Diary');
 const { userModel } = require('../models/userModel');
 
-// 3. Strumento per Groq con descrizione rigidissima
+// 3. I DUE STRUMENTI SEPARATI
 const tools = [
     {
+        // STRUMENTO 1: OGGI (Default)
         type: "function",
         function: {
-            name: "inserisci_cibo_diario",
-            description: "Usa questa funzione ESCLUSIVAMENTE se l'utente afferma in modo chiaro e diretto di aver MANGIATO o BEVUTO un alimento specifico OGGI (es: 'ho mangiato una mela', 'a pranzo ho preso 100g di riso'). NON attivare MAI per saluti, insulti, domande generiche, richieste di consigli o se l'utente non specifica un cibo reale.",
+            name: "inserisci_cibo_oggi",
+            description: "Usa QUESTA funzione se l'utente dice di aver mangiato qualcosa OGGI, o se NON specifica alcuna data (es: 'ho mangiato una mela'). NON usarla se parla di ieri.",
             parameters: {
                 type: "object",
                 properties: {
                     nome_alimento: { type: "string", description: "Nome dell'alimento consumato." },
-                    calorie: { type: "number", description: "Calorie totali stimate" },
-                    proteine_g: { type: "number", description: "Proteine totali in grammi" },
-                    grassi_g: { type: "number", description: "Grassi totali in grammi" },
-                    carboidrati_g: { type: "number", description: "Carboidrati totali in grammi" }
+                    calorie: { type: "number" },
+                    proteine_g: { type: "number" },
+                    grassi_g: { type: "number" },
+                    carboidrati_g: { type: "number" }
                 },
                 required: ["nome_alimento", "calorie", "proteine_g", "grassi_g", "carboidrati_g"]
+            }
+        }
+    },
+    {
+        // STRUMENTO 2: GIORNI PASSATI
+        type: "function",
+        function: {
+            name: "inserisci_cibo_giorni_passati",
+            description: "Usa QUESTA funzione ESCLUSIVAMENTE se l'utente afferma esplicitamente di aver mangiato qualcosa in un giorno PASSATO (es: 'ieri ho mangiato', 'l'altro ieri ho preso').",
+            parameters: {
+                type: "object",
+                properties: {
+                    nome_alimento: { type: "string", description: "Nome dell'alimento consumato." },
+                    data_riferimento: { 
+                        type: "string", 
+                        enum: ["ieri", "altro_ieri"], 
+                        description: "Indica a quale giorno passato si riferisce." 
+                    },
+                    calorie: { type: "number" },
+                    proteine_g: { type: "number" },
+                    grassi_g: { type: "number" },
+                    carboidrati_g: { type: "number" }
+                },
+                required: ["nome_alimento", "data_riferimento", "calorie", "proteine_g", "grassi_g", "carboidrati_g"]
             }
         }
     }
 ];
 
+// Genera la data odierna forzando il fuso orario italiano (Europe/Rome)
+const getTodayString = () => {
+    const opzioni = { timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit' };
+    const dataItaliana = new Date().toLocaleDateString('en-CA', opzioni); // Genera direttamente YYYY-MM-DD
+    return dataItaliana;
+};
+
+// Genera l'array delle date passate calcolate sulla timezone italiana
 const getPastDates = (numDays) => {
     const dates = [];
+    const opzioni = { timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit' };
+    
     for (let i = 0; i <= numDays; i++) {
         const d = new Date();
-        d.setDate(d.getDate() - i);
-        dates.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`);
+        // Sottraiamo i giorni all'ora locale italiana prima di formattare
+        const dataLocale = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Rome' }));
+        dataLocale.setDate(dataLocale.getDate() - i);
+        
+        const dataStringa = dataLocale.toLocaleDateString('en-CA', opzioni);
+        dates.push(dataStringa);
     }
     return dates;
 };
@@ -46,8 +85,9 @@ exports.handleChatMessage = async (req, res) => {
         const { message, username, chatHistory } = req.body;
         if (!message) return res.status(400).json({ error: "Devi scrivere qualcosa." });
 
-        const oggi = new Date();
-        const dataOggiStringa = `${oggi.getFullYear()}-${String(oggi.getMonth() + 1).padStart(2, '0')}-${String(oggi.getDate()).padStart(2, '0')}`;
+        // Calcoliamo le date (0=Oggi, 1=Ieri, 2=L'altro ieri)
+        const arrayDate = getPastDates(2); 
+        const dataOggiStringa = arrayDate[0];
 
         // 🧠 A. QUERY DATI FISIOLOGICI
         const utente = await userModel.findOne({ username: username });
@@ -74,7 +114,7 @@ exports.handleChatMessage = async (req, res) => {
             tdeeStimato = Math.round(bmr * (multipliers[currentActivityLevel] || 1.2));
         }
 
-        // 🧠 B. RECUPERO STORICO ALIMENTARE RECENTE (La query stabile a 3 giorni)
+        // 🧠 B. RECUPERO STORICO ALIMENTARE RECENTE
         const rangeDate = getPastDates(3);
         const diariPassati = await diaryModel.find({ username: username, date: { $in: rangeDate } });
 
@@ -88,13 +128,12 @@ exports.handleChatMessage = async (req, res) => {
             });
         }
 
-        const infoFisiche = `Parametri utente: Peso ${currentWeight || '??'}kg, Altezza ${currentHeight || '??'}cm, Età ${currentAge || '??'}anni, TDEE: ${tdeeStimato} kcal.`;
+        const infoFisiche = `Parametri utente: Peso ${currentWeight || '??'}kg, Altezza ${currentHeight || '??'}cm, Età ${currentAge || '??'}anni, TDEE: ${tdeeStimato} kcal.\nINFO TEMPO: Oggi è ${arrayDate[0]}, Ieri era ${arrayDate[1]}, L'altro ieri era ${arrayDate[2]}.`;
 
-        // 🌟 C. DISATTIVAZIONE STRUMENTI DI SICUREZZA (Evita l'attivazione se l'utente non sta dichiarando un pasto)
+        // 🌟 C. DISATTIVAZIONE STRUMENTI DI SICUREZZA
         let toolChoice = "auto";
         const msgLower = message.toLowerCase();
         
-        // Parole chiave che indicano domande, saluti, insulti o consigli (Spegniamo i tool)
         const isNotAnInsertion = 
             msgLower.includes("consigl") || 
             msgLower.includes("cosa mangio") || 
@@ -108,7 +147,7 @@ exports.handleChatMessage = async (req, res) => {
             message.trim().length < 3;
 
         if (isNotAnInsertion) {
-            toolChoice = "none"; // Disattiva a forza i tool per questa risposta
+            toolChoice = "none";
         }
 
         // 🧠 D. COSTRUZIONE CONTESTO E COMPORTAMENTO
@@ -128,7 +167,6 @@ exports.handleChatMessage = async (req, res) => {
             }
         ];
 
-        // Inseriamo la cronologia dei messaggi precedenti se presenti
         if (chatHistory && Array.isArray(chatHistory)) {
             const recentHistory = chatHistory.slice(-6);
             recentHistory.forEach(msg => {
@@ -141,35 +179,49 @@ exports.handleChatMessage = async (req, res) => {
 
         apiMessages.push({ role: "user", content: message });
 
-        // Chiamata a Groq
         const chatCompletion = await groq.chat.completions.create({
             messages: apiMessages,
             model: "llama-3.1-8b-instant",
             tools: tools,
-            tool_choice: toolChoice // Utilizza la scelta dinamica e protetta
+            tool_choice: toolChoice 
         });
 
         const responseMessage = chatCompletion.choices[0].message;
 
-        // Se Groq prova a inserire un cibo oggi
+        // 🌟 E. GESTIONE DELLA CHIAMATA A UNO DEI DUE TOOLS
         if (responseMessage.tool_calls && responseMessage.tool_calls.length > 0) {
             const toolCall = responseMessage.tool_calls[0];
+            const functionName = toolCall.function.name;
             
-            if (toolCall.function.name === "inserisci_cibo_diario") {
+            // Verifichiamo se ha chiamato uno dei nostri due tool
+            if (functionName === "inserisci_cibo_oggi" || functionName === "inserisci_cibo_giorni_passati") {
                 const args = JSON.parse(toolCall.function.arguments);
 
-                // 🌟 SCUDO DI CONTROLLO FINALE NEL BACKEND
-                // Se lo strumento si è attivato per errore senza un cibo nominato dall'utente, blocchiamo tutto
                 if (isNotAnInsertion || !args.nome_alimento || args.nome_alimento.toLowerCase().includes("zucchero") && !msgLower.includes("zucchero")) {
                     return res.json({
-                        reply: "Se hai consumato un pasto specifico, indicami pure il nome e la quantità così posso aggiornare il tuo diario.",
+                        reply: "Se hai consumato un pasto, indicami nome e quantità per aggiornare il diario.",
                         action: "none"
                     });
                 }
 
-                let diario = await diaryModel.findOne({ username: username, date: dataOggiStringa });
+                // Logica di routing della data in base al tool utilizzato dall'IA
+                let targetDateString = arrayDate[0]; // Partiamo da oggi
+                let labelRisposta = "oggi";
+
+                if (functionName === "inserisci_cibo_giorni_passati") {
+                    if (args.data_riferimento === "ieri") {
+                        targetDateString = arrayDate[1];
+                        labelRisposta = "ieri";
+                    } else if (args.data_riferimento === "altro_ieri") {
+                        targetDateString = arrayDate[2];
+                        labelRisposta = "l'altro ieri";
+                    }
+                }
+
+                // Da qui in poi il salvataggio è identico per entrambi, cambia solo la data bersaglio
+                let diario = await diaryModel.findOne({ username: username, date: targetDateString });
                 if (!diario) {
-                    diario = new diaryModel({ username: username, date: dataOggiStringa, foods: [], totals: { calorie: 0, proteine_g: 0, grassi_g: 0, carboidrati_g: 0 } });
+                    diario = new diaryModel({ username: username, date: targetDateString, foods: [], totals: { calorie: 0, proteine_g: 0, grassi_g: 0, carboidrati_g: 0 } });
                 }
 
                 const generatedId = new mongoose.Types.ObjectId();
@@ -192,7 +244,7 @@ exports.handleChatMessage = async (req, res) => {
                 await diario.save();
 
                 return res.json({
-                    reply: `Ho aggiunto ${args.nome_alimento} (${args.calorie} kcal) al tuo diario per la giornata di oggi.`,
+                    reply: `Ho aggiunto ${args.nome_alimento} (${args.calorie} kcal) al tuo diario per la giornata di **${labelRisposta}**.`,
                     action: "food_inserted"
                 });
             }
