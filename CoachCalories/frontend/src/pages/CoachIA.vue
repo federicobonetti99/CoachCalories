@@ -248,8 +248,8 @@ onMounted(() => {
       </div>
 
       <div class="col-lg-5">
-        <div class="card bg-dark text-white shadow-sm border-secondary rounded-4 d-flex flex-column h-100" style="min-height: 550px;">
-          
+        <div class="card bg-dark text-white shadow-sm border-secondary rounded-4 d-flex flex-column" style="height: 650px;">
+            
           <div class="p-3 border-bottom border-secondary bg-black rounded-top-4 d-flex align-items-center gap-2">
             <span class="fs-4">🤖</span>
             <div>
