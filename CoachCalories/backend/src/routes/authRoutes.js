@@ -2,7 +2,12 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
 
-// Quando il frontend invia i dati al server
 router.post('/login', authController.login);
+
+router.post('/update-physiological', authController.updatePhysiologicalData);
+
+router.get('/history/:email', authController.getPhysiologicalHistory);
+
+router.post('/delete-physiological', authController.deletePhysiologicalRecord);
 
 module.exports = router;
