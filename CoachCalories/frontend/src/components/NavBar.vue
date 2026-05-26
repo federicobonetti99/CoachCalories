@@ -34,6 +34,10 @@ const emit = defineEmits(['logout', 'navigate']);
             <a class="nav-link text-info fw-bold" href="#" @click.prevent="$emit('navigate', 'DiarySchema')">📊 Analisi</a>
           </li>
 
+          <li v-if="userGrade" class="nav-item">
+            <a class="nav-link text-warning fw-bold" href="#" @click.prevent="$emit('navigate', 'PhysiologicalDataPage')">🧬 Profilo Fisico</a>
+          </li>
+
           <li class="nav-item">
             <a class="nav-link" href="#" @click.prevent="$emit('navigate', 'Catalog')">Catalog</a>
           </li>
@@ -47,7 +51,7 @@ const emit = defineEmits(['logout', 'navigate']);
           </li>
 
           <li v-if="userGrade === 'admin'" class="nav-item">
-            <a class="nav-link text-warning fw-bold" href="#" @click.prevent="$emit('navigate', 'AdminProposalsPage')">📥 Gestisci Proposte</a>
+            <a class="nav-link text-danger fw-bold" href="#" @click.prevent="$emit('navigate', 'AdminProposalsPage')">📥 Gestisci Proposte</a>
           </li>
 
         </ul>

@@ -1,7 +1,6 @@
 <script setup>
 import axios from "axios"
 import { onMounted, ref } from "vue"
-import FoodMiniCard from "@/components/FoodMiniCard.vue" // Cambiato nome
 import replaceByDefault from "@/lib/replaceByDefault"
 import { NOT_FOUND_IMAGE } from "@/lib/replaceByDefault"
 
@@ -52,30 +51,71 @@ onMounted(getTopFood)
     </div>
   </div>
 
-  <div class="container-fluid d-flex justify-content-center flex-wrap gap-4 mb-5">
-    <FoodMiniCard id="METTI_ID_DI_AVOCADO" />
-    <FoodMiniCard id="METTI_ID_DI_POLLO" />
-    <FoodMiniCard id="METTI_ID_DI_RISO" />
+  <div class="container mb-5">
+    <div class="text-center mb-4">
+      <h2 class="fw-bold text-white">Cosa vuoi fare?</h2>
+      <p class="text-muted">Scegli la tua prossima mossa per dominare i tuoi obiettivi.</p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+      
+      <div class="col-md-4">
+        <a href="#" @click.prevent="$emit('navigate', 'CoachIA')" class="text-decoration-none">
+          <div class="card action-card h-100 bg-dark text-white border-secondary shadow-sm rounded-4">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center p-4 text-center">
+              <span class="display-4 mb-3">🤖</span>
+              <h5 class="fw-bold text-success mb-2">Confrontati con un coach IA</h5>
+              <p class="text-white-50 small mb-0">Parla con il tuo assistente virtuale per calcolare i macro e inserire i pasti al volo.</p>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-4">
+        <a href="#" @click.prevent="$emit('navigate', 'DailyDiaryPage')" class="text-decoration-none">
+          <div class="card action-card h-100 bg-dark text-white border-secondary shadow-sm rounded-4">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center p-4 text-center">
+              <span class="display-4 mb-3">📓</span>
+              <h5 class="fw-bold text-success mb-2">Visualizza il diario giornaliero</h5>
+              <p class="text-white-50 small mb-0">Controlla tutto ciò che hai mangiato oggi e monitora i tuoi traguardi calorici.</p>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-4">
+        <a href="#" @click.prevent="$emit('navigate', 'DiarySchema')" class="text-decoration-none">
+          <div class="card action-card h-100 bg-dark text-white border-secondary shadow-sm rounded-4">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center p-4 text-center">
+              <span class="display-4 mb-3">📊</span>
+              <h5 class="fw-bold text-success mb-2">Leggi i grafici</h5>
+              <p class="text-white-50 small mb-0">Analizza i tuoi progressi nel tempo con statistiche dettagliate sul tuo peso e macro.</p>
+            </div>
+          </div>
+        </a>
+      </div>
+
+    </div>
   </div>
 </template>
 
 <style scoped>
 .homeContainer {
-  margin-bottom: 100px; /* Ridotto un po' perché 200px era tantissimo */
+  margin-bottom: 60px; /* Spazio ridotto tra la copertina e i nuovi pulsanti */
 }
 .last {
   margin: 30px 50px;
   border-radius: 30px;
   box-sizing: border-box;
   overflow: hidden;
-  border: 4px solid #198754; /* Un tocco di verde coach */
+  border: 4px solid #198754;
 }
 .last > * {
   width: 100%;
   height: 500px;
 }
 .coverImage {
-  filter: blur(8px); /* Aumentato il blur per far leggere meglio il testo */
+  filter: blur(8px);
   position: relative;
   overflow: hidden;
   margin-bottom: -500px;
@@ -84,7 +124,7 @@ onMounted(getTopFood)
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.1); /* Evita i bordi bianchi col blur */
+  transform: scale(1.1);
 }
 .pattern {
   position: relative;
@@ -115,5 +155,23 @@ onMounted(getTopFood)
   font-size: 3rem;
   font-weight: bold;
   text-transform: uppercase;
+}
+
+/* 🌟 STILI PER LE NUOVE CARD AZIONE */
+.action-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+/* Effetto Hover: la card si solleva e il bordo diventa verde */
+.action-card:hover {
+  transform: translateY(-8px);
+  border-color: #198754 !important;
+  box-shadow: 0 10px 20px rgba(25, 135, 84, 0.2) !important;
+  background-color: #212529 !important;
+}
+
+.action-card:hover h5 {
+  text-shadow: 0 0 10px rgba(25, 135, 84, 0.5);
 }
 </style>

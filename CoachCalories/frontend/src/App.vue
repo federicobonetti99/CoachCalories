@@ -11,8 +11,8 @@ import DiarySchema from './pages/DiarySchemaPage.vue'
 import FoodProposalPage from './pages/FoodProposalPage.vue' 
 import AdminProposalsPage from './pages/AdminProposalsPage.vue' 
 import NotificationCenterPage from './pages/NotificationCenter.vue'
-// 🌟 IMPORTIAMO IL COACH IA
 import CoachIA from './pages/CoachIA.vue'
+import PhysiologicalDataPage from './pages/PhysiologicalDataPage.vue'
 
 const isLogged = ref(false)
 const userGrade = ref('')
@@ -93,6 +93,7 @@ const setPage = (pageName, id = null) => {
       <HomeContainer 
         v-if="currentPage === 'Home' && isLogged" 
         :userGrade="userGrade" 
+        @navigate="setPage"
       />
 
       <DailyDiaryPage v-if="currentPage === 'DailyDiaryPage' && isLogged" />
@@ -119,6 +120,8 @@ const setPage = (pageName, id = null) => {
       <AdminProposalsPage v-if="currentPage === 'AdminProposalsPage' && userGrade === 'admin'" @navigate="setPage" />
 
       <NotificationCenterPage v-if="currentPage === 'NotificationCenterPage' && isLogged" @navigate="setPage" />
+
+      <PhysiologicalDataPage v-if="currentPage === 'PhysiologicalDataPage' && isLogged" />
 
     </main>
   </div>
