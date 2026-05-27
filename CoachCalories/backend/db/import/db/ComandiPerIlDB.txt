@@ -1,10 +1,37 @@
-PER IL LOGIN
-docker cp db_login.json db-mongo-1:/tmp/db_login.json
-docker exec -it db-mongo-1 mongoimport --db CoachCalories --collection users --file /tmp/db_login.json --jsonArray
+========================================================================
+GUIDA COMPLETA AL POPOLAMENTO DEL DATABASE (CoachCalories)
+========================================================================
 
-PER I CIBI
-docker cp db_foods.json db-mongo-1:/tmp/db_foods.json
-docker exec -it db-mongo-1 mongoimport --db CoachCalories --collection foods --file /tmp/db_foods.json --jsonArray
+I seguenti comandi permettono di importare i dati di test (Utenti, Catalogo Cibi, 
+Diari Alimentari e Notifiche) all'interno del container Docker MongoDB ('db-mongo-1').
+
+Istruzioni per l'uso:
+1. Apri il terminale del computer nella cartella in cui si trovano i file .json.
+2. Esegui i comandi in sequenza, un blocco alla volta.
+
+------------------------------------------------------------------------
+AGGIUNGERE I DATI (Append automatico)
+------------------------------------------------------------------------
+Usa questi comandi se vuoi inserire i nuovi dati lasciando intatti quelli 
+già presenti nel database.
+
+# 1. IMPORTAZIONE UTENTI (users)
+docker cp users.json db-mongo-1:/tmp/users.json
+docker exec -it db-mongo-1 mongoimport --db CoachCalories --collection users --file /tmp/users.json
+
+# 2. IMPORTAZIONE CATALOGO CIBI (foods)
+# NOTA: Se nel tuo codice backend la collezione si chiama 'alimenti', 
+# cambia '--collection foods' in '--collection alimenti'
+docker cp foods.json db-mongo-1:/tmp/foods.json
+docker exec -it db-mongo-1 mongoimport --db CoachCalories --collection foods --file /tmp/foods.json
+
+# 3. IMPORTAZIONE DIARI ALIMENTARI (diaries)
+docker cp diaries.json db-mongo-1:/tmp/diaries.json
+docker exec -it db-mongo-1 mongoimport --db CoachCalories --collection diaries --file /tmp/diaries.json
+
+# 4. IMPORTAZIONE NOTIFICHE (notifications)
+docker cp notifications.json db-mongo-1:/tmp/notifications.json
+docker exec -it db-mongo-1 mongoimport --db CoachCalories --collection notifications --file /tmp/notifications.json
 
 DA INSTALLARE
 npm install multer

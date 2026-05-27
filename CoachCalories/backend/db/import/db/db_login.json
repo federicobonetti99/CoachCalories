@@ -1,2 +1,0 @@
-{"_id":{"$oid":"69fb3e2cb0da564b8e6f7660"},"username":"Federico","password":"Federico","email":"federico@coach.it","authenticationGrade":"admin","physiologicalHistory":[{"weight":95,"height":180,"age":27,"activityLevel":"moderate","startDate":"2026-01-01T00:00:00.000Z","endDate":null}]}
-{"_id":{"$oid":"69fb3e2cb0da564b8e6f7661"},"username":"Gianni","password":"Gianni","email":"gianni@user.it","authenticationGrade":"normal","physiologicalHistory":[{"weight":70,"height":175,"age":28,"activityLevel":"sedentary","startDate":"2026-01-01T00:00:00.000Z","endDate":null}]}

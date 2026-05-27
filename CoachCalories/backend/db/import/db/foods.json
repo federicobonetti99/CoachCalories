@@ -1,0 +1,144 @@
+{"_id":{"$oid":"69faef68cbb29d25f185a376"},"nome":"Uovo","quantita":1,"unita":"pz","calorie":78,"carboidrati_g":0.6,"proteine_g":6.3,"grassi_g":5.3,"img":"uovo.jpg","note":"Circa 60g a pezzo."}
+{"_id":{"$oid":"69faef68cbb29d25f185a379"},"nome":"Riso Basmati","quantita":100,"unita":"g","calorie":349,"carboidrati_g":78,"proteine_g":8.5,"grassi_g":0.9,"img":"risoBasmati.jpg","note":"Riso a chicco lungo."}
+{"_id":{"$oid":"69faef68cbb29d25f185a37b"},"nome":"Avocado","quantita":100,"unita":"g","calorie":160,"carboidrati_g":9,"proteine_g":2,"grassi_g":15,"img":"avocado.jpg","note":"Ottima fonte di grassi sani."}
+{"_id":{"$oid":"69faefb4f4ea87f00d847468"},"nome":"Petto di Pollo","quantita":100,"unita":"g","calorie":165,"carboidrati_g":0,"proteine_g":31,"grassi_g":3.6,"img":"petto-di-pollo.jpg","__v":0}
+{"_id":{"$oid":"69faff4626d8d045665de8af"},"nome":"Yogurt Greco 0","quantita":150,"unita":"g","calorie":58,"carboidrati_g":5,"proteine_g":10,"grassi_g":0,"img":"yogurt-greco-0.jpg","__v":0}
+{"_id":{"$oid":"69faff6626d8d045665de8b5"},"nome":"Cosce di Pollo","quantita":100,"unita":"g","calorie":210,"carboidrati_g":0,"proteine_g":24,"grassi_g":12,"img":"cosce-di-pollo.avif","__v":0}
+{"_id":{"$oid":"69fafffa26d8d045665de8b8"},"nome":"Scatoletta di tonno","quantita":100,"unita":"g","calorie":192,"carboidrati_g":0,"proteine_g":25,"grassi_g":10,"img":"scatoletta-di-tonno.jpg","__v":0}
+{"_id":{"$oid":"69fb026926d8d045665de8d2"},"nome":"Cous cous","quantita":100,"unita":"g","calorie":360,"carboidrati_g":72,"proteine_g":13,"grassi_g":1,"img":"cous-cous.jpg","__v":0}
+{"_id":{"$oid":"69fc4cee00ebff804967c34a"},"nome":"Banana","quantita":100,"unita":"g","calorie":89,"carboidrati_g":23,"proteine_g":1,"grassi_g":0,"img":"banana.jpg","__v":0}
+{"_id":{"$oid":"69fc87e9c2c38b3a4acd4566"},"nome":"Simmenthal","quantita":90,"unita":"g","calorie":56,"carboidrati_g":0,"proteine_g":10,"grassi_g":1,"img":"simmenthal.jpg","__v":0}
+{"_id":{"$oid":"69fc899dc2c38b3a4acd45b4"},"nome":"Bustina di zucchero","quantita":6,"unita":"g","calorie":24,"carboidrati_g":6,"proteine_g":0,"grassi_g":0,"img":"bustina-di-zucchero.jpg","__v":0}
+{"_id":{"$oid":"69fc8abcc2c38b3a4acd45ca"},"nome":"Milk PRO High Protein Crème Caramel","quantita":150,"unita":"g","calorie":114,"carboidrati_g":8,"proteine_g":15,"grassi_g":2,"img":"milk-pro-high-protein-crème-caramel.jpg","__v":0}
+{"_id":{"$oid":"69fcabf8d0ef885878281985"},"nome":"Pacchetto di cracker gran pavesi","quantita":31,"unita":"g","calorie":136,"carboidrati_g":21,"proteine_g":3,"grassi_g":4,"img":"pacchetto-di-cracker-gran-pavesi-senza-sale.png","__v":0}
+{"_id":{"$oid":"69fcd7f6d0ef8858782819ed"},"nome":"Pancetta Carne","quantita":100,"unita":"g","calorie":480,"carboidrati_g":0,"proteine_g":10,"grassi_g":48,"img":"pancetta-carne.jpg","__v":0}
+{"_id":{"$oid":"6a01cc8a0765588273363af4"},"nome":"Cornetto al pistacchio","quantita":80,"unita":"g","calorie":360,"carboidrati_g":44,"proteine_g":5,"grassi_g":18,"img":"cornetto-al-pistacchio.jpg","__v":0}
+{"_id":{"$oid":"6a01e6a35c4a60c807894d70"},"nome":"Scottona","quantita":100,"unita":"g","calorie":115,"carboidrati_g":0,"proteine_g":22,"grassi_g":3,"img":"scottona.jpg","__v":0}
+{"_id":{"$oid":"6a02f261bc6d50aeb67f827a"},"nome":"Cornetto al cioccolato","quantita":80,"unita":"g","calorie":328,"carboidrati_g":40,"proteine_g":5,"grassi_g":16,"img":"cornetto-al-cioccolato.jpg","__v":0}
+{"_id":{"$oid":"6a032551c4e521f5b3f8a90e"},"nome":"Coscia di pollo disossata senza pelle","quantita":100,"unita":"g","calorie":125,"carboidrati_g":0,"proteine_g":20,"grassi_g":5,"img":"coscia-di-pollo-disossata.jpg","__v":0}
+{"_id":{"$oid":"6a043893af973f3f52c96627"},"nome":"Agnello taglio ossobuco","quantita":100,"unita":"g","calorie":185,"carboidrati_g":0,"proteine_g":18,"grassi_g":13,"img":"agnello-taglio-ossobuco.jpg","approvato":true,"__v":0}
+{"_id":{"$oid":"6a04397aaf973f3f52c96663"},"nome":"Succhino di frutta Selex","quantita":200,"unita":"ml","calorie":49,"carboidrati_g":12,"proteine_g":0,"grassi_g":0,"img":"succhino-di-frutta-selex.jpg","approvato":true,"__v":0}
+{"_id":{"$oid":"6a043a48af973f3f52c966ff"},"nome":"Cornetto alla crema","quantita":80,"unita":"g","calorie":312,"carboidrati_g":24,"proteine_g":5,"grassi_g":14,"img":"cornetto-alla-crema.png","approvato":true,"__v":0}
+{"_id":{"$oid":"6a043b22af973f3f52c96737"},"nome":"Speck","quantita":100,"unita":"g","calorie":300,"carboidrati_g":1,"proteine_g":30,"grassi_g":19,"img":"speck.jpg","approvato":true,"__v":0}
+{"_id":{"$oid":"6a0486f90a36988a7e141da9"},"nome":"Seitan","quantita":100,"unita":"g","calorie":140,"carboidrati_g":5,"proteine_g":24,"grassi_g":2,"img":"seitan-1778681593184.jpg","approvato":true,"__v":0}
+{"_id":{"$oid":"6a05847c9b034ef1ed689180"},"nome":"Mini cotolette vegetali con spinaci Kione","quantita":100,"unita":"g","calorie":221,"carboidrati_g":17,"proteine_g":11,"grassi_g":11,"img":"mini-cotolette-vegetali-con-spinaci-kione-1778746492388.jpg","approvato":true,"__v":0}
+{"_id":{"$oid":"6a05bb549b034ef1ed689373"},"nome":"Pizzetta Margherita","quantita":150,"unita":"g","calorie":410,"carboidrati_g":62,"proteine_g":14,"grassi_g":11,"img":"pizzetta-margherita-1778760532312.jpg","approvato":true,"__v":0}
+{"_id":{"$oid":"6a05cf369b034ef1ed6894c4"},"nome":"Zucca gialla cruda","quantita":100,"unita":"g","calorie":22,"carboidrati_g":4,"proteine_g":1,"grassi_g":0,"img":"zucca-gialla-cruda-1778765622694.jpg","approvato":true,"__v":0}
+{"_id":{"$oid":"6a081ecbc96707b5539d6c43"},"nome":"Salsiccia","quantita":100,"unita":"g","calorie":320,"carboidrati_g":0,"proteine_g":15,"grassi_g":29,"img":"salsiccia-1778917067507.avif","approvato":true,"proposedBy":"admin","__v":0}
+{"_id":{"$oid":"6a0b1a1b8eb10af9dc780f17"},"nome":"Mela Fuji","quantita":1,"unita":"pz","calorie":72,"carboidrati_g":19,"proteine_g":0.4,"grassi_g":0.2,"img":"mela-fuji.jpg","approvato":true,"proposedBy":"admin","__v":0}
+{"_id":{"$oid":"6a0c56b8a05d04571318b9ee"},"nome":"Svizzera di carne con dentro verdure","quantita":125,"unita":"g","calorie":210,"carboidrati_g":2,"proteine_g":21,"grassi_g":12,"img":"svizzera-di-carne-con-dentro-verdure-1779193528768.jpg","approvato":true,"proposedBy":"admin","__v":0}
+{"_id":{"$oid":"6a0ec2a4a9923badc98fd1d8"},"nome":"Lenticchie in scatola","quantita":100,"unita":"g","calorie":85,"carboidrati_g":13,"proteine_g":6,"grassi_g":0,"img":"lenticchie-in-scatola-1779352228360.jpg","approvato":true,"proposedBy":"admin","__v":0}
+{"_id":{"$oid":"6a0efcfb8f9414bea2a6d440"},"nome":"Kebab di Seitan","quantita":160,"unita":"g","calorie":315,"carboidrati_g":5,"proteine_g":35,"grassi_g":16,"img":"kebab-si-seitan-1779352525480.jpg","approvato":true,"proposedBy":"admin","__v":0}
+{"_id":{"$oid":"6a1011348eac10d014eed36d"},"nome":"Spiedini di pollo coop","quantita":300,"unita":"g","calorie":438,"carboidrati_g":6,"proteine_g":48,"grassi_g":24,"img":"spiedini-di-pollo-coop-1779437876215.jpg","approvato":true,"proposedBy":"admin","__v":0}
+{"_id":{"$oid":"6a10123a8eac10d014eed385"},"nome":"Spritz","quantita":160,"unita":"ml","calorie":160,"carboidrati_g":15,"proteine_g":0,"grassi_g":0,"img":"spritz-1779438138874.png","approvato":true,"proposedBy":"admin","__v":0}
+{"_id":{"$oid":"69ff307eec6176daa3e2a7fb"},"nome":"Pasta di semola","quantita":100,"unita":"g","calorie":348,"carboidrati_g":75,"proteine_g":12,"grassi_g":1,"img":"pasta-di-semola.jpg","__v":0}
+{"_id":{"$oid":"6a01ce71adf9cef2c13c9987"},"nome":"Insalata belga","quantita":100,"unita":"g","calorie":15,"carboidrati_g":10,"proteine_g":4,"grassi_g":3,"img":"insalata-belga.jpg","__v":0}
+{"_id":{"$oid":"6a01e3de898163353b496aa4"},"nome":"Arance","quantita":100,"unita":"g","calorie":45,"carboidrati_g":10,"proteine_g":1,"grassi_g":0,"img":"arance.jpg","__v":0}
+{"_id":{"$oid":"6a01e413898163353b496aa7"},"nome":"Mandarini","quantita":100,"unita":"g","calorie":62,"carboidrati_g":13,"proteine_g":1,"grassi_g":0,"img":"mandarini.jpg","__v":0}
+{"_id":{"$oid":"6a01e447898163353b496aaa"},"nome":"More","quantita":100,"unita":"g","calorie":42,"carboidrati_g":8,"proteine_g":1,"grassi_g":0,"img":"more.jpg","__v":0}
+{"_id":{"$oid":"6a01e471898163353b496aad"},"nome":"Prugne","quantita":100,"unita":"g","calorie":46,"carboidrati_g":9,"proteine_g":1,"grassi_g":0,"img":"prugne.jpg","__v":0}
+{"_id":{"$oid":"6a01e495898163353b496ab0"},"nome":"Ribes","quantita":100,"unita":"g","calorie":30,"carboidrati_g":6,"proteine_g":1,"grassi_g":0,"img":"ribes.jpg","__v":0}
+{"_id":{"$oid":"6a01e4c4898163353b496ab3"},"nome":"Lamponi","quantita":100,"unita":"g","calorie":49,"carboidrati_g":7,"proteine_g":1,"grassi_g":1,"img":"lamponi.jpg","__v":0}
+{"_id":{"$oid":"6a01e4ed898163353b496ab6"},"nome":"Mirtilli","quantita":100,"unita":"g","calorie":49,"carboidrati_g":10,"proteine_g":1,"grassi_g":0,"img":"mirtilli.jpg","__v":0}
+{"_id":{"$oid":"6a01e51b898163353b496ab9"},"nome":"Kiwi","quantita":100,"unita":"g","calorie":61,"carboidrati_g":12,"proteine_g":1,"grassi_g":1,"img":"kiwi.jpg","__v":0}
+{"_id":{"$oid":"6a01e544898163353b496abc"},"nome":"Mango","quantita":100,"unita":"g","calorie":60,"carboidrati_g":13,"proteine_g":1,"grassi_g":0,"img":"mango.jpg","__v":0}
+{"_id":{"$oid":"6a01e56a898163353b496abf"},"nome":"Ciliegie","quantita":100,"unita":"g","calorie":48,"carboidrati_g":11,"proteine_g":1,"grassi_g":0,"img":"ciliegie.jpg","__v":0}
+{"_id":{"$oid":"6a01e58b898163353b496ac2"},"nome":"Albicocche","quantita":100,"unita":"g","calorie":42,"carboidrati_g":10,"proteine_g":0,"grassi_g":0,"img":"albicocche.jpg","__v":0}
+{"_id":{"$oid":"6a01e5d6898163353b496ac8"},"nome":"Banane","quantita":100,"unita":"g","calorie":76,"carboidrati_g":17,"proteine_g":1,"grassi_g":0,"img":"banane.jpg","__v":0}
+{"_id":{"$oid":"6a01e5b1898163353b496ac5"},"nome":"Pesche","quantita":100,"unita":"g","calorie":62,"carboidrati_g":14,"proteine_g":0,"grassi_g":0,"img":"pesche.jpg","__v":0}
+{"_id":{"$oid":"6a01e5ff898163353b496acb"},"nome":"Limone","quantita":100,"unita":"g","calorie":16,"carboidrati_g":3,"proteine_g":1,"grassi_g":0,"img":"limone.jpg","__v":0}
+{"_id":{"$oid":"6a01e63d898163353b496ace"},"nome":"Mela","quantita":100,"unita":"g","calorie":54,"carboidrati_g":12,"proteine_g":0,"grassi_g":0,"img":"mela.jpg","__v":0}
+{"_id":{"$oid":"69faef68cbb29d25f185a378"},"nome":"Mela Fuji","quantita":1,"unita":"pz","calorie":72,"carboidrati_g":19,"proteine_g":0.4,"grassi_g":0.2,"img":"mela-fuji.jpg","note":"Peso medio circa 180g."}
+{"_id":{"$oid":"6a01e674898163353b496ad1"},"nome":"Pera","quantita":100,"unita":"g","calorie":57,"carboidrati_g":12,"proteine_g":0,"grassi_g":0,"img":"pera.jpg","__v":0}
+{"_id":{"$oid":"6a01e69b898163353b496ad4"},"nome":"Cocomero","quantita":100,"unita":"g","calorie":16,"carboidrati_g":4,"proteine_g":0,"grassi_g":0,"img":"cocomero.jpg","__v":0}
+{"_id":{"$oid":"6a01e6d1898163353b496ad7"},"nome":"Melone","quantita":100,"unita":"g","calorie":36,"carboidrati_g":9,"proteine_g":1,"grassi_g":0,"img":"melone.jpg","__v":0}
+{"_id":{"$oid":"6a01e6fc898163353b496ada"},"nome":"Ananas","quantita":100,"unita":"g","calorie":50,"carboidrati_g":13,"proteine_g":1,"grassi_g":0,"img":"ananas.jpg","__v":0}
+{"_id":{"$oid":"6a01e72e898163353b496add"},"nome":"Broccoli","quantita":100,"unita":"g","calorie":31,"carboidrati_g":3,"proteine_g":3,"grassi_g":0,"img":"broccoli.jpg","__v":0}
+{"_id":{"$oid":"6a01e758898163353b496ae0"},"nome":"Cavolfiore","quantita":100,"unita":"g","calorie":30,"carboidrati_g":3,"proteine_g":3,"grassi_g":0,"img":"cavolfiore.jpg","__v":0}
+{"_id":{"$oid":"6a01e7a9898163353b496ae6"},"nome":"Ravanelli","quantita":100,"unita":"g","calorie":13,"carboidrati_g":2,"proteine_g":1,"grassi_g":0,"img":"ravanelli.jpg","__v":0}
+{"_id":{"$oid":"6a01e7d8898163353b496ae9"},"nome":"Finocchi","quantita":100,"unita":"g","calorie":27,"carboidrati_g":5,"proteine_g":1,"grassi_g":0,"img":"finocchi.jpg","__v":0}
+{"_id":{"$oid":"6a01e815898163353b496aec"},"nome":"Taccole","quantita":100,"unita":"g","calorie":23,"carboidrati_g":3,"proteine_g":2,"grassi_g":0,"img":"taccole.jpg","__v":0}
+{"_id":{"$oid":"6a01e839898163353b496aef"},"nome":"Asparagi","quantita":100,"unita":"g","calorie":21,"carboidrati_g":3,"proteine_g":2,"grassi_g":0,"img":"asparagi.jpg","__v":0}
+{"_id":{"$oid":"6a01e861898163353b496af2"},"nome":"Fagiolini","quantita":100,"unita":"g","calorie":24,"carboidrati_g":2,"proteine_g":2,"grassi_g":0,"img":"fagiolini.jpg","__v":0}
+{"_id":{"$oid":"6a01e886898163353b496af5"},"nome":"Lattuga","quantita":100,"unita":"g","calorie":16,"carboidrati_g":1,"proteine_g":2,"grassi_g":0,"img":"lattuga.jpg","__v":0}
+{"_id":{"$oid":"6a01e8af898163353b496af8"},"nome":"Radicchio rosso","quantita":100,"unita":"g","calorie":16,"carboidrati_g":2,"proteine_g":1,"grassi_g":0,"img":"radicchio-rosso.jpg","__v":0}
+{"_id":{"$oid":"6a01e8f6898163353b496afe"},"nome":"Bietole","quantita":100,"unita":"g","calorie":15,"carboidrati_g":2,"proteine_g":1,"grassi_g":0,"img":"bietole.jpg","__v":0}
+{"_id":{"$oid":"6a01e92a898163353b496b01"},"nome":"Prezzemolo","quantita":100,"unita":"g","calorie":75,"carboidrati_g":4,"proteine_g":4,"grassi_g":4,"img":"prezzemolo.jpg","__v":0}
+{"_id":{"$oid":"6a01e8d6898163353b496afb"},"nome":"Spinaci","quantita":100,"unita":"g","calorie":35,"carboidrati_g":3,"proteine_g":3,"grassi_g":1,"img":"spinaci.jpg","__v":0}
+{"_id":{"$oid":"6a01e94a898163353b496b04"},"nome":"Carote","quantita":100,"unita":"g","calorie":41,"carboidrati_g":8,"proteine_g":1,"grassi_g":0,"img":"carote.jpg","__v":0}
+{"_id":{"$oid":"6a01e783898163353b496ae3"},"nome":"Cipolle","quantita":100,"unita":"g","calorie":30,"carboidrati_g":6,"proteine_g":1,"grassi_g":0,"img":"cipolle.jpg","__v":0}
+{"_id":{"$oid":"6a01e96e898163353b496b07"},"nome":"Patate","quantita":100,"unita":"g","calorie":73,"carboidrati_g":16,"proteine_g":2,"grassi_g":0,"img":"patate.jpg","__v":0}
+{"_id":{"$oid":"6a01eb02898163353b496b1d"},"nome":"Stracchino","quantita":100,"unita":"g","calorie":269,"carboidrati_g":1,"proteine_g":12,"grassi_g":24,"img":"stracchino.jpg","__v":0}
+{"_id":{"$oid":"6a01e9cb898163353b496b0d"},"nome":"Peperoni","quantita":100,"unita":"g","calorie":27,"carboidrati_g":4,"proteine_g":1,"grassi_g":0,"img":"peperoni.jpg","__v":0}
+{"_id":{"$oid":"6a01e997898163353b496b0a"},"nome":"Melanzane","quantita":100,"unita":"g","calorie":25,"carboidrati_g":4,"proteine_g":1,"grassi_g":0,"img":"melanzane.jpg","__v":0}
+{"_id":{"$oid":"6a01ea15898163353b496b13"},"nome":"Pomodorini","quantita":100,"unita":"g","calorie":20,"carboidrati_g":4,"proteine_g":1,"grassi_g":0,"img":"pomodorini.jpg","__v":0}
+{"_id":{"$oid":"6a01e9ed898163353b496b10"},"nome":"Zucchine","quantita":100,"unita":"g","calorie":17,"carboidrati_g":2,"proteine_g":1,"grassi_g":0,"img":"zucchine.jpg","__v":0}
+{"_id":{"$oid":"6a01eba8898163353b496b29"},"nome":"Gorgonzola","quantita":100,"unita":"g","calorie":329,"carboidrati_g":2,"proteine_g":21,"grassi_g":26,"img":"gorgonzola.jpg","__v":0}
+{"_id":{"$oid":"6a01ec2f898163353b496b32"},"nome":"Pecorino","quantita":100,"unita":"g","calorie":392,"carboidrati_g":0,"proteine_g":26,"grassi_g":32,"img":"pecorino.jpg","__v":0}
+{"_id":{"$oid":"6a01eb60898163353b496b23"},"nome":"Fontina","quantita":100,"unita":"g","calorie":382,"carboidrati_g":1,"proteine_g":25,"grassi_g":31,"img":"fontina.jpg","__v":0}
+{"_id":{"$oid":"6a01eb82898163353b496b26"},"nome":"Primo sale","quantita":100,"unita":"g","calorie":225,"carboidrati_g":3,"proteine_g":14,"grassi_g":18,"img":"primo-sale.jpg","__v":0}
+{"_id":{"$oid":"6a01ebe1898163353b496b2c"},"nome":"Gruyère","quantita":100,"unita":"g","calorie":413,"carboidrati_g":0,"proteine_g":30,"grassi_g":32,"img":"gruyère.jpg","__v":0}
+{"_id":{"$oid":"6a01ec04898163353b496b2f"},"nome":"Caciotta","quantita":100,"unita":"g","calorie":342,"carboidrati_g":0,"proteine_g":19,"grassi_g":29,"img":"caciotta.jpg","__v":0}
+{"_id":{"$oid":"6a01eb34898163353b496b20"},"nome":"Emmental","quantita":100,"unita":"g","calorie":393,"carboidrati_g":1,"proteine_g":27,"grassi_g":31,"img":"emmental.jpg","__v":0}
+{"_id":{"$oid":"6a0202e5ffe23f4ab3720357"},"nome":"Olio Evo","quantita":100,"unita":"g","calorie":899,"carboidrati_g":0,"proteine_g":0,"grassi_g":100,"img":"olio-evo.jpg","__v":0}
+{"_id":{"$oid":"6a020306ffe23f4ab372035a"},"nome":"Olio semi","quantita":100,"unita":"g","calorie":899,"carboidrati_g":0,"proteine_g":0,"grassi_g":100,"img":"olio-semi.jpg","__v":0}
+{"_id":{"$oid":"6a01ec70898163353b496b38"},"nome":"Mozzarella","quantita":100,"unita":"g","calorie":232,"carboidrati_g":1,"proteine_g":17,"grassi_g":18,"img":"mozzarella.jpg","__v":0}
+{"_id":{"$oid":"6a02034affe23f4ab372035d"},"nome":"Burro","quantita":100,"unita":"g","calorie":751,"carboidrati_g":1,"proteine_g":1,"grassi_g":83,"img":"burro.jpg","__v":0}
+{"_id":{"$oid":"6a01ec4d898163353b496b35"},"nome":"Ricotta","quantita":100,"unita":"g","calorie":150,"carboidrati_g":3,"proteine_g":8,"grassi_g":12,"img":"ricotta.jpg","__v":0}
+{"_id":{"$oid":"6a020369ffe23f4ab3720360"},"nome":"Maionese","quantita":100,"unita":"g","calorie":655,"carboidrati_g":2,"proteine_g":4,"grassi_g":70,"img":"maionese.jpg","__v":0}
+{"_id":{"$oid":"6a0202b7ffe23f4ab3720354"},"nome":"Passata pomodoro","quantita":100,"unita":"g","calorie":26,"carboidrati_g":4,"proteine_g":2,"grassi_g":1,"img":"passata-pomodoro.jpg","__v":0}
+{"_id":{"$oid":"6a020471ffe23f4ab372036f"},"nome":"Salame","quantita":100,"unita":"g","calorie":375,"carboidrati_g":1,"proteine_g":31,"grassi_g":28,"img":"salame.jpg","__v":0}
+{"_id":{"$oid":"6a02059affe23f4ab372037c"},"nome":"Ciccioli","quantita":100,"unita":"g","calorie":636,"carboidrati_g":0,"proteine_g":45,"grassi_g":51,"img":"ciccioli.jpg","__v":0}
+{"_id":{"$oid":"6a020654ffe23f4ab3720385"},"nome":"Salsiccia","quantita":100,"unita":"g","calorie":304,"carboidrati_g":1,"proteine_g":15,"grassi_g":27,"img":"salsiccia.jpg","__v":0}
+{"_id":{"$oid":"6a02070effe23f4ab3720391"},"nome":"Piselli in scatola scolati","quantita":100,"unita":"g","calorie":78,"carboidrati_g":11,"proteine_g":5,"grassi_g":1,"img":"piselli-in-scatola-scolati.jpg","__v":0}
+{"_id":{"$oid":"6a070900ac4487ad159a8926"},"nome":"Marmellata senza zuccheri aggiunti","quantita":100,"unita":"g","calorie":160,"carboidrati_g":38,"proteine_g":0,"grassi_g":0,"img":"marmellata-senza-zuccheri-aggiunti.jpg","__v":0}
+{"_id":{"$oid":"6a070929ac4487ad159a8929"},"nome":"Creker leggeri","quantita":100,"unita":"g","calorie":409,"carboidrati_g":73,"proteine_g":11,"grassi_g":7,"img":"creker-leggeri.jpg","__v":0}
+{"_id":{"$oid":"6a07094dac4487ad159a892c"},"nome":"Pane bianco","quantita":100,"unita":"g","calorie":268,"carboidrati_g":60,"proteine_g":8,"grassi_g":1,"img":"pane-bianco.jpg","__v":0}
+{"_id":{"$oid":"6a070975ac4487ad159a892f"},"nome":"Pane di segale","quantita":100,"unita":"g","calorie":228,"carboidrati_g":45,"proteine_g":8,"grassi_g":2,"img":"pane-di-segale.jpg","__v":0}
+{"_id":{"$oid":"6a02067affe23f4ab3720388"},"nome":"Wurstel","quantita":100,"unita":"g","calorie":259,"carboidrati_g":0,"proteine_g":15,"grassi_g":22,"img":"wurstel.jpg","__v":0}
+{"_id":{"$oid":"6a0206e6ffe23f4ab372038e"},"nome":"Lenticchie in scatola scolate","quantita":100,"unita":"g","calorie":91,"carboidrati_g":15,"proteine_g":5,"grassi_g":1,"img":"lenticchie-in-scatola-scolate.jpg","__v":0}
+{"_id":{"$oid":"6a0709baac4487ad159a8936"},"nome":"Brioche al cioccolato","quantita":100,"unita":"g","calorie":480,"carboidrati_g":45,"proteine_g":9,"grassi_g":28,"img":"brioche-al-cioccolato.jpg","__v":0}
+{"_id":{"$oid":"6a0709f5ac4487ad159a8939"},"nome":"Briosce bar vuota","quantita":100,"unita":"g","calorie":400,"carboidrati_g":55,"proteine_g":7,"grassi_g":18,"img":"briosce-bar-vuota.jpg","__v":0}
+{"_id":{"$oid":"6a070a27ac4487ad159a893c"},"nome":"Brioche bar marmellata","quantita":100,"unita":"g","calorie":400,"carboidrati_g":53,"proteine_g":6,"grassi_g":17,"img":"brioche-bar-marmellata.jpg","__v":0}
+{"_id":{"$oid":"6a070a57ac4487ad159a893f"},"nome":"Fette biscottate","quantita":100,"unita":"g","calorie":406,"carboidrati_g":72,"proteine_g":12,"grassi_g":7,"img":"fette-biscottate.jpg","__v":0}
+{"_id":{"$oid":"6a070aa1ac4487ad159a8945"},"nome":"Biscotti al burro","quantita":100,"unita":"g","calorie":467,"carboidrati_g":69,"proteine_g":6,"grassi_g":19,"img":"biscotti-al-burro.jpg","__v":0}
+{"_id":{"$oid":"6a070ae8ac4487ad159a894b"},"nome":"Latte parzialmente scremato","quantita":100,"unita":"g","calorie":46,"carboidrati_g":5,"proteine_g":2,"grassi_g":3,"img":"latte-parzialmente-scremato.jpg","__v":0}
+{"_id":{"$oid":"6a070b46ac4487ad159a8951"},"nome":"Vino rosso Montepulciano","quantita":100,"unita":"g","calorie":84,"carboidrati_g":1,"proteine_g":0,"grassi_g":0,"img":"vino-rosso-montepulciano.jpg","__v":0}
+{"_id":{"$oid":"6a070ba5ac4487ad159a8954"},"nome":"Coca 0","quantita":100,"unita":"g","calorie":0,"carboidrati_g":0,"proteine_g":0,"grassi_g":0,"img":"coca-0.jpg","__v":0}
+{"_id":{"$oid":"6a070b14ac4487ad159a894e"},"nome":"Vino Lambrusco","quantita":100,"unita":"g","calorie":75,"carboidrati_g":3,"proteine_g":0,"grassi_g":0,"img":"vino-lambrusco.jpg","__v":0}
+{"_id":{"$oid":"6a070bdeac4487ad159a8957"},"nome":"Succo ACE senza zucchero","quantita":100,"unita":"g","calorie":31,"carboidrati_g":7,"proteine_g":0,"grassi_g":0,"img":"succo-ace-senza-zucchero.jpg","__v":0}
+{"_id":{"$oid":"6a070ac1ac4487ad159a8948"},"nome":"Latte intero","quantita":100,"unita":"g","calorie":63,"carboidrati_g":5,"proteine_g":3,"grassi_g":4,"img":"latte-intero.jpg","__v":0}
+{"_id":{"$oid":"6a0205bbffe23f4ab372037f"},"nome":"Bresaola","quantita":100,"unita":"g","calorie":152,"carboidrati_g":0,"proteine_g":33,"grassi_g":2,"img":"bresaola.jpg","__v":0}
+{"_id":{"$oid":"6a020421ffe23f4ab3720369"},"nome":"Prosciutto crudo sgrassato","quantita":100,"unita":"g","calorie":176,"carboidrati_g":0,"proteine_g":29,"grassi_g":7,"img":"prosciutto-crudo-sgrassato.jpg","__v":0}
+{"_id":{"$oid":"6a020632ffe23f4ab3720382"},"nome":"Speck","quantita":100,"unita":"g","calorie":299,"carboidrati_g":1,"proteine_g":31,"grassi_g":19,"img":"speck.jpg","__v":0}
+{"_id":{"$oid":"6a0203f5ffe23f4ab3720366"},"nome":"Prosciutto crudo","quantita":100,"unita":"g","calorie":309,"carboidrati_g":0,"proteine_g":26,"grassi_g":23,"img":"prosciutto-crudo.jpg","__v":0}
+{"_id":{"$oid":"6a0203abffe23f4ab3720363"},"nome":"Ketchup","quantita":100,"unita":"g","calorie":100,"carboidrati_g":24,"proteine_g":2,"grassi_g":50,"img":"ketchup.jpg","__v":0}
+{"_id":{"$oid":"6a020503ffe23f4ab3720379"},"nome":"Lardo","quantita":100,"unita":"g","calorie":891,"carboidrati_g":0,"proteine_g":0,"grassi_g":99,"img":"lardo.jpg","__v":0}
+{"_id":{"$oid":"6a0204e0ffe23f4ab3720376"},"nome":"Pancetta arrotolata","quantita":100,"unita":"g","calorie":530,"carboidrati_g":2,"proteine_g":15,"grassi_g":52,"img":"pancetta-arrotolata.jpg","__v":0}
+{"_id":{"$oid":"6a070a79ac4487ad159a8942"},"nome":"Biscotti secchi","quantita":100,"unita":"g","calorie":439,"carboidrati_g":75,"proteine_g":9,"grassi_g":11,"img":"biscotti-secchi.jpg","__v":0}
+{"_id":{"$oid":"6a070c00ac4487ad159a895a"},"nome":"Succo pera senza zucchero","quantita":100,"unita":"g","calorie":33,"carboidrati_g":8,"proteine_g":0,"grassi_g":0,"img":"succo-pera-senza-zucchero.jpg","__v":0}
+{"_id":{"$oid":"6a0206bbffe23f4ab372038b"},"nome":"Ceci in scatola scolati","quantita":100,"unita":"g","calorie":111,"carboidrati_g":14,"proteine_g":7,"grassi_g":2,"img":"ceci-in-scatola-scolati.jpg","__v":0}
+{"_id":{"$oid":"6a070d62ac4487ad159a897f"},"nome":"Seppie","quantita":100,"unita":"g","calorie":72,"carboidrati_g":1,"proteine_g":14,"grassi_g":2,"img":"seppie.jpg","__v":0}
+{"_id":{"$oid":"6a070d8eac4487ad159a8982"},"nome":"Anelli di totano","quantita":100,"unita":"g","calorie":52,"carboidrati_g":0,"proteine_g":10,"grassi_g":1,"img":"anelli-di-totano.jpg","__v":0}
+{"_id":{"$oid":"6a070db2ac4487ad159a8985"},"nome":"Gamberetti","quantita":100,"unita":"g","calorie":66,"carboidrati_g":0,"proteine_g":15,"grassi_g":1,"img":"gamberetti.jpg","__v":0}
+{"_id":{"$oid":"6a070df5ac4487ad159a898b"},"nome":"Vongole","quantita":100,"unita":"g","calorie":86,"carboidrati_g":4,"proteine_g":15,"grassi_g":1,"img":"vongole.jpg","__v":0}
+{"_id":{"$oid":"6a070dd6ac4487ad159a8988"},"nome":"Cozze","quantita":100,"unita":"g","calorie":86,"carboidrati_g":4,"proteine_g":12,"grassi_g":2,"img":"cozze.jpg","__v":0}
+{"_id":{"$oid":"6a070e16ac4487ad159a898e"},"nome":"Coda di rospo","quantita":100,"unita":"g","calorie":70,"carboidrati_g":0,"proteine_g":16,"grassi_g":1,"img":"coda-di-rospo.jpg","__v":0}
+{"_id":{"$oid":"6a020494ffe23f4ab3720372"},"nome":"Mortadella","quantita":100,"unita":"g","calorie":288,"carboidrati_g":2,"proteine_g":16,"grassi_g":25,"img":"mortadella.jpg","__v":0}
+{"_id":{"$oid":"6a070e9fac4487ad159a8997"},"nome":"Polpo","quantita":100,"unita":"g","calorie":82,"carboidrati_g":2,"proteine_g":15,"grassi_g":1,"img":"polpo.jpg","__v":0}
+{"_id":{"$oid":"6a070e68ac4487ad159a8994"},"nome":"Tonno","quantita":100,"unita":"g","calorie":109,"carboidrati_g":1,"proteine_g":24,"grassi_g":2,"img":"tonno.jpg","__v":0}
+{"_id":{"$oid":"6a070e3dac4487ad159a8991"},"nome":"Sogliola","quantita":100,"unita":"g","calorie":83,"carboidrati_g":1,"proteine_g":17,"grassi_g":1,"img":"sogliola.jpg","__v":0}
+{"_id":{"$oid":"6a070f60ac4487ad159a89a3"},"nome":"Petto di pollo","quantita":100,"unita":"g","calorie":104,"carboidrati_g":0,"proteine_g":24,"grassi_g":1,"img":"petto-di-pollo.jpg","__v":0}
+{"_id":{"$oid":"6a070ec8ac4487ad159a899a"},"nome":"Salmone","quantita":100,"unita":"g","calorie":202,"carboidrati_g":0,"proteine_g":20,"grassi_g":13,"img":"salmone.jpg","__v":0}
+{"_id":{"$oid":"6a070f84ac4487ad159a89a6"},"nome":"Macinato misto","quantita":100,"unita":"g","calorie":199,"carboidrati_g":0,"proteine_g":19,"grassi_g":14,"img":"macinato-misto.jpg","__v":0}
+{"_id":{"$oid":"6a070f43ac4487ad159a89a0"},"nome":"Petto di tacchino","quantita":100,"unita":"g","calorie":106,"carboidrati_g":0,"proteine_g":24,"grassi_g":1,"img":"petto-di-tacchino.jpg","__v":0}
+{"_id":{"$oid":"6a070fa5ac4487ad159a89a9"},"nome":"Macinato magro","quantita":100,"unita":"g","calorie":176,"carboidrati_g":0,"proteine_g":20,"grassi_g":10,"img":"macinato-magro.jpg","__v":0}
+{"_id":{"$oid":"6a070f12ac4487ad159a899d"},"nome":"Roast beef","quantita":100,"unita":"g","calorie":150,"carboidrati_g":0,"proteine_g":30,"grassi_g":3,"img":"roast-beef.jpg","__v":0}
+{"_id":{"$oid":"6a07102dac4487ad159a89ac"},"nome":"Carne bovina","quantita":100,"unita":"g","calorie":130,"carboidrati_g":0,"proteine_g":21,"grassi_g":5,"img":"carne-bovina.jpg","__v":0}
+{"_id":{"$oid":"6a020449ffe23f4ab372036c"},"nome":"Prosciutto cotto","quantita":100,"unita":"g","calorie":138,"carboidrati_g":2,"proteine_g":16,"grassi_g":8,"img":"prosciutto-cotto.jpg","__v":0}
+{"_id":{"$oid":"6a07109cac4487ad159a89b1"},"nome":"Carne lonza di maiale","quantita":100,"unita":"g","calorie":146,"carboidrati_g":0,"proteine_g":21,"grassi_g":7,"img":"carne-lonza-di-maiale.jpg","__v":0}
+{"_id":{"$oid":"6a07105fac4487ad159a89ae"},"nome":"Carne coppa di maiale","quantita":100,"unita":"g","calorie":247,"carboidrati_g":0,"proteine_g":30,"grassi_g":14,"img":"carne-coppa-di-maiale.jpg","__v":0}
+{"_id":{"$oid":"6a0713bdac4487ad159a8a71"},"nome":"Cracker leggeri","quantita":100,"unita":"g","calorie":409,"carboidrati_g":73,"proteine_g":11,"grassi_g":7,"img":"cracker-leggeri.jpg","__v":0}
+{"_id":{"$oid":"6a071107ac4487ad159a89b3"},"nome":"Fiorentina","quantita":100,"unita":"g","calorie":271,"carboidrati_g":0,"proteine_g":25,"grassi_g":19,"img":"fiorentina.webp","__v":0}
+{"_id":{"$oid":"6a0df574f2072c74627f8a16"},"nome":"Noci","quantita":100,"unita":"g","calorie":618,"carboidrati_g":10,"proteine_g":24,"grassi_g":57,"img":"noci.jpg","__v":0}
+{"_id":{"$oid":"6a01ea95898163353b496b16"},"nome":"Parmigiano reggiano","quantita":100,"unita":"g","calorie":402,"carboidrati_g":0,"proteine_g":32,"grassi_g":30,"img":"parmigiano-reggiano.jpg","__v":0}
