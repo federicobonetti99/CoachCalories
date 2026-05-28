@@ -121,7 +121,6 @@ const inviaProposta = async () => {
     return;
   }
 
-  // 🌟 VERIFICA DI SICUREZZA DIRETTA
   // Recuperiamo l'email reale dal localStorage senza dare un fallback "misterioso" che rompe i socket
   const userEmail = localStorage.getItem('userEmail');
   const username = localStorage.getItem('username') || ''; 
@@ -135,6 +134,8 @@ const inviaProposta = async () => {
 
   risposta.value = 'Invio della proposta in corso...';
   errore.value = '';
+
+  const nomeSanificato = dummyData.nome.replace(/[%&$#@*§ç]/g, '');
 
   const fd = new FormData();
   fd.append('nome', dummyData.nome);

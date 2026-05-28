@@ -130,6 +130,8 @@ const inviaTest = async () => {
   risposta.value = 'Caricamento...';
   errore.value = '';
   
+  const nomeSanificato = dummyData.nome.replace(/[%&$#@*§ç]/g, '');
+
   const fd = new FormData();
   fd.append('nome', dummyData.nome); 
   fd.append('calorie', dummyData.calorie || 0);
