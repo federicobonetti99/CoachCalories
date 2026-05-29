@@ -20,8 +20,6 @@ docker cp users.json db-mongo-1:/tmp/users.json
 docker exec -it db-mongo-1 mongoimport --db CoachCalories --collection users --file /tmp/users.json
 
 # 2. IMPORTAZIONE CATALOGO CIBI (foods)
-# NOTA: Se nel tuo codice backend la collezione si chiama 'alimenti', 
-# cambia '--collection foods' in '--collection alimenti'
 docker cp foods.json db-mongo-1:/tmp/foods.json
 docker exec -it db-mongo-1 mongoimport --db CoachCalories --collection foods --file /tmp/foods.json
 
